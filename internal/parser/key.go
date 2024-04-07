@@ -2,10 +2,9 @@ package parser
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/karupanerura/datastore-cli/internal/datastore"
+	"github.com/karupanerura/gqlparser"
 )
 
 type KeyParser struct {
@@ -31,110 +30,27 @@ func (p *KeyParser) ParseKey(src string) (*datastore.Key, error) {
 	if key, err := datastore.DecodeKey(src); err == nil {
 		return key, nil
 	}
-	if !strings.HasPrefix(src, "key(") {
-		return nil, fmt.Errorf("invalid key: %q", src)
+
+	parsedKey, err := gqlparser.ParseKey(gqlparser.NewLexer(src))
+	if err != nil {
+		return nil, fmt.Errorf("gqlparser.ParseKey: %w", err)
 	}
 
-	i := len("key(")
-	key := &datastore.Key{Namespace: p.Namespace}
-	for i < len(src) {
-		// should not be last
-		if i == len(src)-1 {
-			return nil, fmt.Errorf("invalid key: %q", src)
-		}
-
-		// skip whitespace
-		for src[i] == ' ' {
-			i++
-			if i == len(src) {
-				return nil, fmt.Errorf("invalid key: %q", src)
+	key := &datastore.Key{Kind: parsedKey.Namespace, Namespace: parsedKey.Namespace}
+	if key.Namespace == "" {
+		key.Namespace = p.Namespace
+	}
+	for i := len(parsedKey.Path) - 1; i >= 0; i-- {
+		key.ID = parsedKey.Path[i].ID
+		key.Name = parsedKey.Path[i].Name
+		key.Kind = string(parsedKey.Path[i].Kind)
+		if i != 0 {
+			parent := &datastore.Key{Kind: parsedKey.Namespace, Namespace: parsedKey.Namespace}
+			if parent.Namespace == "" {
+				parent.Namespace = p.Namespace
 			}
-		}
-
-		// quoted kind or raw kind literal
-		if src[i] == '`' {
-			j := strings.IndexByte(src[i+1:], '`')
-			if j == -1 {
-				return nil, fmt.Errorf("invalid key: %q", src)
-			}
-			key.Kind = src[i+1 : i+j+1]
-			i = i + 1 + j + 1
-			if i == len(src) || src[i] != ',' {
-				return nil, fmt.Errorf("invalid key: %q", src)
-			}
-			i++
-		} else {
-			j := strings.IndexAny(src[i:], ", ")
-			if j == -1 || src[j] == ' ' {
-				return nil, fmt.Errorf("invalid key: %q", src)
-			}
-			key.Kind = src[i : i+j]
-			i = i + j + 1
-		}
-		if i == len(src) {
-			return nil, fmt.Errorf("invalid key: %q", src)
-		}
-
-		// skip whitespace
-		for src[i] == ' ' {
-			i++
-			if i == len(src) {
-				return nil, fmt.Errorf("invalid key: %q", src)
-			}
-		}
-
-		// quoted key literal
-		if src[i] == '"' || src[i] == '\'' {
-			quote := src[i]
-			j := strings.IndexByte(src[i+1:], quote)
-			if j == -1 {
-				return nil, fmt.Errorf("invalid key: %q", src)
-			}
-			key.Name = src[i+1 : i+j+1]
-			i = i + 1 + j + 1
-			if i == len(src) {
-				return nil, fmt.Errorf("invalid key: %q", src)
-			}
-		} else {
-			// numeric key literal
-			j := strings.IndexFunc(src[i:], func(r rune) bool {
-				isDigit := '0' <= r && r <= '9'
-				return !isDigit
-			})
-			if j == 0 || j == -1 {
-				return nil, fmt.Errorf("invalid key: %q", src)
-			}
-			var err error
-			key.ID, err = strconv.ParseInt(src[i:i+j], 10, 64)
-			if err != nil {
-				return nil, err
-			}
-			i = i + j
-			if i == len(src) {
-				return nil, fmt.Errorf("invalid key: %q", src)
-			}
-			if key.ID == 0 {
-				return nil, fmt.Errorf("invalid key: %q (id must not be 0)", src)
-			}
-		}
-
-		// skip whitespace
-		for src[i] == ' ' {
-			i++
-			if i == len(src) {
-				return nil, fmt.Errorf("invalid key: %q", src)
-			}
-		}
-
-		if src[i] == ',' {
-			i++
-			key = &datastore.Key{Namespace: p.Namespace, Parent: key}
-			continue
-		} else if src[i] == ')' {
-			i++
-			if i != len(src) {
-				return nil, fmt.Errorf("invalid key: %q", src)
-			}
+			key.Parent = parent
+			key = parent
 		}
 	}
 	return key, nil
