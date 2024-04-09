@@ -9,12 +9,7 @@ require (
 	github.com/karupanerura/gqlparser v0.0.0-20240409010806-b21747776489
 )
 
-require (
-	github.com/k0kubun/pp/v3 v3.2.0 // indirect
-	github.com/karupanerura/runetrie v0.0.0-20240408160441-49a8fadb8dd0 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
-)
+require github.com/karupanerura/runetrie v0.0.0-20240408160441-49a8fadb8dd0 // indirect
 
 require (
 	cloud.google.com/go v0.112.0 // indirect
@@ -29,7 +24,6 @@ require (
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.1 // indirect
-	github.com/k0kubun/pp v3.0.1+incompatible
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.48.0 // indirect
@@ -43,7 +37,7 @@ require (
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/api v0.166.0 // indirect
+	google.golang.org/api v0.166.0
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20240221002015-b0ce06bbee7c // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240221002015-b0ce06bbee7c // indirect
