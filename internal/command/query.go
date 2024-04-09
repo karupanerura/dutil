@@ -17,7 +17,7 @@ type QueryCommand struct {
 	Distinct    bool     `name:"distinct" optional:""`
 	DistinctOn  []string `name:"distinctOn" optional:""`
 	Project     []string `name:"project" optional:""`
-	Filter      string   `name:"filter" optional:"" help:"Entity filter quert (format: GQL compound-condition https://cloud.google.com/datastore/docs/reference/gql_reference)"`
+	Filter      string   `name:"filter" optional:"" help:"(Not supported) Entity filter quert (format: GQL compound-condition https://cloud.google.com/datastore/docs/reference/gql_reference)"`
 }
 
 func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
