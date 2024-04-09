@@ -3,12 +3,12 @@ package command
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 
 	"github.com/karupanerura/datastore-cli/internal/datastore"
 	"github.com/karupanerura/datastore-cli/internal/parser"
+	"google.golang.org/api/iterator"
 )
 
 type QueryCommand struct {
@@ -55,22 +55,17 @@ func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
 		}
 	}
 
-	var entities []*datastore.Entity
-	if _, err := client.GetAll(ctx, query, &entities); err != nil {
-		var mErr datastore.MultiError
-		if errors.As(err, &mErr) {
-			for _, err := range mErr {
-				if err != nil && !errors.Is(err, datastore.ErrNoSuchEntity) {
-					return mErr
-				}
-			}
-		} else {
+	iter := client.Run(ctx, query)
+	encoder := json.NewEncoder(os.Stdout)
+	for {
+		var entity datastore.Entity
+		_, err := iter.Next(&entity)
+		if err == iterator.Done {
+			break
+		} else if err != nil {
 			return err
 		}
-	}
 
-	encoder := json.NewEncoder(os.Stdout)
-	for _, entity := range entities {
 		if err := encoder.Encode(entity); err != nil {
 			return err
 		}

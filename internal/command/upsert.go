@@ -1,10 +1,8 @@
 package command
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
-	"errors"
 	"io"
 	"os"
 
@@ -22,15 +20,12 @@ func (r *UpsertCommand) Run(ctx context.Context, opts Options) error {
 
 	var entities []*datastore.Entity
 	var keys datastore.Keys
-	rdr := bufio.NewReader(os.Stdin)
+	decoder := json.NewDecoder(os.Stdin)
 	for {
-		line, _, err := rdr.ReadLine()
-		if errors.Is(err, io.EOF) {
-			break
-		}
-
 		var entity *datastore.Entity
-		if err := json.Unmarshal(line, &entity); err != nil {
+		if err := decoder.Decode(&entity); err == io.EOF {
+			break
+		} else if err != nil {
 			return err
 		}
 		keys = append(keys, entity.Key)
