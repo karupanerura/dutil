@@ -28,10 +28,10 @@ func DecodeKey(encoded string) (*Key, error) {
 	if err != nil {
 		return nil, err
 	}
-	return fromDatastoreKey(key), nil
+	return FromDatastoreKey(key), nil
 }
 
-func fromDatastoreKey(src *datastore.Key) *Key {
+func FromDatastoreKey(src *datastore.Key) *Key {
 	dest := &Key{
 		Kind:      src.Kind,
 		ID:        src.ID,
@@ -39,7 +39,7 @@ func fromDatastoreKey(src *datastore.Key) *Key {
 		Namespace: src.Namespace,
 	}
 	if src.Parent != nil {
-		dest.Parent = fromDatastoreKey(src.Parent)
+		dest.Parent = FromDatastoreKey(src.Parent)
 	}
 	return dest
 }

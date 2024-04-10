@@ -10,7 +10,7 @@ type Entity struct {
 }
 
 func (e *Entity) LoadKey(key *datastore.Key) error {
-	e.Key = fromDatastoreKey(key)
+	e.Key = FromDatastoreKey(key)
 	return nil
 }
 

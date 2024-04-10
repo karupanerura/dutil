@@ -23,8 +23,6 @@ type OrFilter = datastore.OrFilter
 
 type PropertyFilter = datastore.PropertyFilter
 
-var NopFilter EntityFilter = datastore.AndFilter{Filters: []datastore.EntityFilter{}}
-
 type GeoPoint struct {
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`

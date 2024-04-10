@@ -73,8 +73,12 @@ github.com/hexops/gotextdiff v1.0.3 h1:gitA9+qJrrTCsiCl7+kh75nPqQt1cx4ZkudSTLoUq
 github.com/hexops/gotextdiff v1.0.3/go.mod h1:pSWU5MAI3yDq+fZBTazCSJysOMbxWL1BSow5/V2vxeg=
 github.com/karupanerura/gqlparser v0.0.0-20240409010806-b21747776489 h1:TuvM6OQqurjGp4/U7CAbWo+pIN8M9BPTI2ba5KVOwA8=
 github.com/karupanerura/gqlparser v0.0.0-20240409010806-b21747776489/go.mod h1:zNMqCaO2IpqMo9pftHzuXKffC6jqoZ3efPfYT/+Liz4=
+github.com/karupanerura/gqlparser v0.0.0-20240410000325-9d1440d9f577 h1:yqArydeW9BpwZ+vqZlatXksjaGfZ773HQ/IOk/xquk4=
+github.com/karupanerura/gqlparser v0.0.0-20240410000325-9d1440d9f577/go.mod h1:w1p6XOC/64nhSAIJH/m5WhBz0owewVExYMQPgAH/OL8=
 github.com/karupanerura/runetrie v0.0.0-20240408160441-49a8fadb8dd0 h1:EMcdgDf4jRMufBQqDi0LukPJLUceEVQQtblevnKYhUo=
 github.com/karupanerura/runetrie v0.0.0-20240408160441-49a8fadb8dd0/go.mod h1:AcFm3vM3k87RfuMPAyXWseB4JwAi5q7hHWDIvugKGbU=
+github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db h1:efQwiMbeaYIISaDyI5C7e40l/uP72Dfmq1j0atIopZw=
+github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db/go.mod h1:86+ByI+VhbOijHwvLgtU3tvWcZH+2i7QdS1ByMFGaZo=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=

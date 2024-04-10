@@ -38,7 +38,7 @@ func (v *Value) fromDatastoreValue(src any) {
 
 	case KeyType:
 		src := src.(*datastore.Key)
-		v.Value = fromDatastoreKey(src)
+		v.Value = FromDatastoreKey(src)
 
 	default:
 		v.Value = src

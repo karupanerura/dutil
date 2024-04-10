@@ -6,10 +6,10 @@ toolchain go1.22.2
 
 require (
 	github.com/alecthomas/kong v0.8.1
-	github.com/karupanerura/gqlparser v0.0.0-20240409010806-b21747776489
+	github.com/karupanerura/gqlparser v0.0.0-20240410000325-9d1440d9f577
 )
 
-require github.com/karupanerura/runetrie v0.0.0-20240408160441-49a8fadb8dd0 // indirect
+require github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db // indirect
 
 require (
 	cloud.google.com/go v0.112.0 // indirect
