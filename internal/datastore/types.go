@@ -13,6 +13,8 @@ var ErrNoSuchEntity = datastore.ErrNoSuchEntity
 
 type Query = datastore.Query
 
+type AggregationQuery = datastore.AggregationQuery
+
 var NewQuery = datastore.NewQuery
 
 type EntityFilter = datastore.EntityFilter

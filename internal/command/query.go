@@ -74,9 +74,12 @@ func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
 	}
 	if r.Filter != "" {
 		filterParser := &parser.FilterParser{Namespace: opts.Namespace}
-		filter, err := filterParser.ParseFilter(r.Filter)
+		ancestor, filter, err := filterParser.ParseFilter(r.Filter)
 		if err != nil {
 			return fmt.Errorf("filterParser.ParseFilter: %w", err)
+		}
+		if ancestor != nil {
+			return fmt.Errorf("ancestor condition is not supported, use --ancestor option instead")
 		}
 		query = query.FilterEntity(filter)
 	}
@@ -120,32 +123,24 @@ func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
 
 	iter := client.Run(ctx, query)
 	encoder := json.NewEncoder(os.Stdout)
-	if r.KeysOnly {
-		for {
-			key, err := iter.Next(nil)
-			if err == iterator.Done {
-				return nil
-			} else if err != nil {
-				return err
-			}
+	for {
+		var entity datastore.Entity
+		key, err := iter.Next(&entity)
+		if err == iterator.Done {
+			break
+		} else if err != nil {
+			return err
+		}
+
+		if len(entity.Properties) == 0 {
 			if err := encoder.Encode(datastore.FromDatastoreKey(key)); err != nil {
 				return err
 			}
-		}
-	} else {
-		for {
-			var entity datastore.Entity
-			_, err := iter.Next(&entity)
-			if err == iterator.Done {
-				break
-			} else if err != nil {
-				return err
-			}
-
+		} else {
 			if err := encoder.Encode(entity); err != nil {
 				return err
 			}
 		}
-		return nil
 	}
+	return nil
 }

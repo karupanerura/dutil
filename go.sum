@@ -75,6 +75,8 @@ github.com/k0kubun/pp v3.0.1+incompatible h1:3tqvf7QgUnZ5tXO6pNAZlrvHgl6DvifjDrd
 github.com/k0kubun/pp v3.0.1+incompatible/go.mod h1:GWse8YhT0p8pT4ir3ZgBbfZild3tgzSScAn6HmfYukg=
 github.com/karupanerura/gqlparser v0.0.0-20240410000325-9d1440d9f577 h1:yqArydeW9BpwZ+vqZlatXksjaGfZ773HQ/IOk/xquk4=
 github.com/karupanerura/gqlparser v0.0.0-20240410000325-9d1440d9f577/go.mod h1:w1p6XOC/64nhSAIJH/m5WhBz0owewVExYMQPgAH/OL8=
+github.com/karupanerura/gqlparser v0.0.0-20240410211807-cecf60e4c55f h1:g/V35S5NdFdN/3MFoLw2rCeqS2awygrlDocoQv5r6tY=
+github.com/karupanerura/gqlparser v0.0.0-20240410211807-cecf60e4c55f/go.mod h1:w1p6XOC/64nhSAIJH/m5WhBz0owewVExYMQPgAH/OL8=
 github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db h1:efQwiMbeaYIISaDyI5C7e40l/uP72Dfmq1j0atIopZw=
 github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db/go.mod h1:86+ByI+VhbOijHwvLgtU3tvWcZH+2i7QdS1ByMFGaZo=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=

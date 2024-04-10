@@ -6,7 +6,7 @@ toolchain go1.22.2
 
 require (
 	github.com/alecthomas/kong v0.8.1
-	github.com/karupanerura/gqlparser v0.0.0-20240410000325-9d1440d9f577
+	github.com/karupanerura/gqlparser v0.0.0-20240410211807-cecf60e4c55f
 )
 
 require github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db // indirect
