@@ -39,7 +39,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/api v0.166.0
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto v0.0.0-20240221002015-b0ce06bbee7c // indirect
+	google.golang.org/genproto v0.0.0-20240221002015-b0ce06bbee7c
 	google.golang.org/genproto/googleapis/api v0.0.0-20240221002015-b0ce06bbee7c // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240221002015-b0ce06bbee7c // indirect
 	google.golang.org/grpc v1.62.0 // indirect

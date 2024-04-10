@@ -6,11 +6,26 @@ import (
 	"time"
 
 	"cloud.google.com/go/datastore"
+	proto "google.golang.org/genproto/googleapis/datastore/v1"
 )
 
 type Value struct {
 	Type  Type `json:"type"`
 	Value any  `json:"value"`
+}
+
+func (v *Value) fromDatastoreProtoValue(src *proto.Value) {
+	// NOTE: not fully types supported because actual types are not used (this is just used by the aggregation query)
+	switch value := src.ValueType.(type) {
+	case *proto.Value_IntegerValue:
+		v.Type = IntType
+		v.Value = value.IntegerValue
+	case *proto.Value_DoubleValue:
+		v.Type = FloatType
+		v.Value = value.DoubleValue
+	default:
+		panic(fmt.Sprintf("unexpected value type: %T", src.ValueType))
+	}
 }
 
 func (v *Value) fromDatastoreValue(src any) {
