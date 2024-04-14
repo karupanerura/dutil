@@ -33,22 +33,28 @@ func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.Aggre
 		dq = dq.DistinctOn(props...)
 	}
 	if q.Properties != nil {
-		props := make([]string, len(q.Properties))
-		for i, p := range q.Properties {
-			props[i] = string(p)
+		if len(q.Properties) == 0 && q.Properties[0] == "__key__" {
+			dq = dq.KeysOnly()
+		} else {
+			props := make([]string, len(q.Properties))
+			for i, p := range q.Properties {
+				props[i] = string(p)
+			}
+			dq = dq.Project(props...)
 		}
-		dq = dq.Project(props...)
 	}
 	if q.Where != nil {
 		filterParser := &FilterParser{Namespace: p.Namespace}
-		ancestor, filter, err := filterParser.convertCondition(q.Where)
+		ancestor, filter, err := filterParser.convertCondition(q.Where.Normalize())
 		if err != nil {
 			return nil, nil, fmt.Errorf("filterParser.ParseFilter: %w", err)
 		}
 		if ancestor != nil {
 			dq = dq.Ancestor(ancestor.ToDatastore())
 		}
-		dq = dq.FilterEntity(filter)
+		if filter != nil {
+			dq = dq.FilterEntity(filter)
+		}
 	}
 	for _, order := range q.OrderBy {
 		if order.Descending {
@@ -69,6 +75,8 @@ func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.Aggre
 			switch agg := agg.(type) {
 			case *gqlparser.CountAggregation:
 				daq = daq.WithCount(agg.Alias)
+			case *gqlparser.CountUpToAggregation:
+				return nil, nil, fmt.Errorf("COUNT_UP_TO aggregation is not yet supported by cloud.google.com/go/datastore")
 			case *gqlparser.SumAggregation:
 				daq = daq.WithSum(string(agg.Property), agg.Alias)
 			case *gqlparser.AvgAggregation:

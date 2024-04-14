@@ -25,6 +25,9 @@ func (r *GQLCommand) Run(ctx context.Context, opts Options) error {
 
 	qp := &parser.QueryParser{Namespace: opts.Namespace}
 	q, aq, err := qp.ParseGQL(r.Query)
+	if err != nil {
+		return err
+	}
 	if aq != nil {
 		ar, err := client.RunAggregationQuery(ctx, aq)
 		if err != nil {

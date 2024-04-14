@@ -1,15 +1,18 @@
 module github.com/karupanerura/datastore-cli
 
-go 1.22.0
-
-toolchain go1.22.2
+go 1.22.2
 
 require (
 	github.com/alecthomas/kong v0.8.1
-	github.com/karupanerura/gqlparser v0.0.0-20240410211807-cecf60e4c55f
+	github.com/k0kubun/pp v3.0.1+incompatible
+	github.com/karupanerura/gqlparser v0.0.0-20240414025815-78e42a2f6a5f
 )
 
-require github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db // indirect
+require (
+	github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+)
 
 require (
 	cloud.google.com/go v0.112.0 // indirect
