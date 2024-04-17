@@ -4,6 +4,135 @@ Google Cloud Datastore unofficial CLI client.
 
 ## Usage
 
+```
+Usage: datastore-cli --projectId=STRING <command>
+
+Flags:
+  -h, --help                    Show context-sensitive help.
+  -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
+  -d, --databaseId=STRING       Cloud Datastore database ID
+  -n, --namespace=STRING        Cloud Datastore namespace
+      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+
+Commands:
+  lookup --projectId=STRING <keys> ...
+
+  query --projectId=STRING <kind>
+
+  upsert --projectId=STRING
+
+  delete --projectId=STRING <keys> ...
+
+  gql --projectId=STRING <query>
+
+Run "datastore-cli <command> --help" for more information on a command.
+```
+
+### lookup
+
+```
+Usage: datastore-cli lookup --projectId=STRING <keys> ...
+
+Arguments:
+  <keys> ...    Keys to lookup (format: https://support.google.com/cloud/answer/6361641)
+
+Flags:
+  -h, --help                    Show context-sensitive help.
+  -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
+  -d, --databaseId=STRING       Cloud Datastore database ID
+  -n, --namespace=STRING        Cloud Datastore namespace
+      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+```
+
+### query
+
+```
+Usage: datastore-cli query --projectId=STRING <kind>
+
+Arguments:
+  <kind>    Entity kind
+
+Flags:
+  -h, --help                    Show context-sensitive help.
+  -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
+  -d, --databaseId=STRING       Cloud Datastore database ID
+  -n, --namespace=STRING        Cloud Datastore namespace
+      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+
+      --key-format="json"       Key format to output for keys only query
+
+Query
+  --keys-only                    Return only keys of entities
+  --ancestor=STRING              Ancestor key to query (format: https://support.google.com/cloud/answer/6361641)
+  --distinct
+  --distinctOn=DISTINCTON,...
+  --project=PROJECT,...
+  --filter=STRING                Entity filter query (format: GQL compound-condition https://cloud.google.com/datastore/docs/reference/gql_reference)
+  --order=ORDER,...              Comma separated property names with optional '-' prefix for descending order
+  --limit=INT                    Limit number of entities to query
+  --offset=INT                   Offset number of entities to query
+
+Aggregation
+  --count=COUNT            Count entities using aggregation query, the value is alias name of the count result. (e.g. --count= or --count=myAlias)
+  --sum=FIELD-AND-ALIAS    Sum entities field using aggregation query, the value is a target field name and optional alias name. (e.g. --sum=myField or --sum=myField=myAlias)
+  --avg=FIELD-AND-ALIAS    Average entities field using aggregation query, the value is a target field name and optional alias name. (e.g. --sum=myField or --sum=myField=myAlias)
+```
+
+### gql
+
+```
+Usage: datastore-cli gql --projectId=STRING <query>
+
+Arguments:
+  <query>    GQL Query
+
+Flags:
+  -h, --help                    Show context-sensitive help.
+  -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
+  -d, --databaseId=STRING       Cloud Datastore database ID
+  -n, --namespace=STRING        Cloud Datastore namespace
+      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+```
+
+### upsert
+
+```
+Usage: datastore-cli upsert --projectId=STRING
+
+Flags:
+  -h, --help                    Show context-sensitive help.
+  -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
+  -d, --databaseId=STRING       Cloud Datastore database ID
+  -n, --namespace=STRING        Cloud Datastore namespace
+      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+
+  -f, --force                   Force upsert without confirmation ($DATASTORE_CLI_FORCE_UPSERT)
+  -c, --commit                  Commit transaction without confirmation
+  -s, --silent                  Silent mode
+```
+
+### delete
+
+```
+Usage: datastore-cli delete --projectId=STRING <keys> ...
+
+Arguments:
+  <keys> ...    Keys to delete (format: https://support.google.com/cloud/answer/6361641)
+
+Flags:
+  -h, --help                    Show context-sensitive help.
+  -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
+  -d, --databaseId=STRING       Cloud Datastore database ID
+  -n, --namespace=STRING        Cloud Datastore namespace
+      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+
+  -f, --force                   Force delete without confirmation ($DATASTORE_CLI_FORCE_DELETE)
+  -c, --commit                  Commit transaction without confirmation
+  -s, --silent                  Silent mode
+```
+
+## Examples
+
 ```prompt
 $ datastore-cli -p my-project1 lookup 'KEY(MyKind, "foo")'
 $ datastore-cli -p my-project1 gql 'SELECT * FROM MyKind WHERE prop > 2'
