@@ -31,6 +31,7 @@ func (a *FieldAndAlias) UnmarshalText(text []byte) error {
 
 type QueryCommand struct {
 	Kind        string        `arg:"" name:"kind" help:"Entity kind"`
+	KeyFormat   string        `name:"key-format" enum:"json,gql,encoded" default:"json" help:"Key format to output for keys only query"`
 	KeysOnly    bool          `name:"keys-only" optional:"" group:"Query" help:"Return only keys of entities"`
 	AncestorKey string        `name:"ancestor" optional:"" group:"Query" help:"Ancestor key to query (format: https://support.google.com/cloud/answer/6361641)"`
 	Distinct    bool          `name:"distinct" optional:"" group:"Query"`
@@ -124,6 +125,8 @@ func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
 		return nil
 	}
 
+	keyFormatter := datastore.KeyFormatter{Format: r.KeyFormat}
+
 	iter := client.Run(ctx, query)
 	encoder := json.NewEncoder(os.Stdout)
 	for {
@@ -136,8 +139,14 @@ func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
 		}
 
 		if len(entity.Properties) == 0 {
-			if err := encoder.Encode(datastore.FromDatastoreKey(key)); err != nil {
-				return err
+			key := keyFormatter.FormatKey(datastore.FromDatastoreKey(key))
+			if s, ok := key.(string); ok {
+				os.Stdout.WriteString(s)
+				os.Stdout.WriteString("\n")
+			} else {
+				if err := encoder.Encode(key); err != nil {
+					return err
+				}
 			}
 		} else {
 			if err := encoder.Encode(entity); err != nil {

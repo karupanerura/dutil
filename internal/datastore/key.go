@@ -85,3 +85,20 @@ func (k Keys) ToDatastore() []*datastore.Key {
 	}
 	return keys
 }
+
+type KeyFormatter struct {
+	Format string
+}
+
+func (k *KeyFormatter) FormatKey(key *Key) any {
+	switch k.Format {
+	case "json":
+		return key
+	case "gql":
+		return key.String()
+	case "encoded":
+		return key.ToDatastore().Encode()
+	default:
+		return key
+	}
+}
