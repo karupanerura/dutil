@@ -22,6 +22,9 @@ func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.Aggre
 	}
 
 	dq := datastore.NewQuery(string(q.Kind))
+	if p.Namespace != "" {
+		dq = dq.Namespace(p.Namespace)
+	}
 	if q.Distinct {
 		dq = dq.Distinct()
 	}

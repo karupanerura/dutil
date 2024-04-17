@@ -55,6 +55,9 @@ func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
 	if r.KeysOnly {
 		query = query.KeysOnly()
 	}
+	if opts.Namespace != "" {
+		query = query.Namespace(opts.Namespace)
+	}
 	if r.AncestorKey != "" {
 		keyParser := &parser.KeyParser{Namespace: opts.Namespace}
 		key, err := keyParser.ParseKey(r.AncestorKey)
