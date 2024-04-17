@@ -7,6 +7,10 @@ import (
 	"cloud.google.com/go/datastore"
 )
 
+type Client = datastore.Client
+
+type Transaction = datastore.Transaction
+
 type MultiError = datastore.MultiError
 
 var ErrNoSuchEntity = datastore.ErrNoSuchEntity

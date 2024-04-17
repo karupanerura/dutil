@@ -1,6 +1,11 @@
 package datastore
 
-import "cloud.google.com/go/datastore"
+import (
+	"strconv"
+	"strings"
+
+	"cloud.google.com/go/datastore"
+)
 
 type Key struct {
 	Kind      string `json:"kind"`
@@ -21,6 +26,33 @@ func (k *Key) ToDatastore() *datastore.Key {
 		key.Parent = k.Parent.ToDatastore()
 	}
 	return key
+}
+
+func (k *Key) String() string {
+	var s strings.Builder
+	s.WriteString("KEY(")
+	if k.Namespace != "" {
+		s.WriteString("NAMESPACE(")
+		s.WriteString(strconv.Quote(k.Namespace))
+		s.WriteString(")")
+	}
+	k.string(&s)
+	s.WriteString(")")
+	return s.String()
+}
+
+func (k *Key) string(s *strings.Builder) {
+	if k.Parent != nil {
+		k.Parent.string(s)
+		s.WriteString(", ")
+	}
+	s.WriteString(k.Kind)
+	s.WriteString(", ")
+	if k.ID != 0 {
+		s.WriteString(strconv.FormatInt(k.ID, 10))
+	} else {
+		s.WriteString(strconv.Quote(k.Name))
+	}
 }
 
 func DecodeKey(encoded string) (*Key, error) {
