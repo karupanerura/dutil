@@ -14,6 +14,7 @@ type CLI struct {
 	Lookup command.LookupCommand `cmd:""`
 	Query  command.QueryCommand  `cmd:""`
 	Upsert command.UpsertCommand `cmd:""`
+	Delete command.DeleteCommand `cmd:""`
 	GQL    command.GQLCommand    `cmd:""`
 }
 
