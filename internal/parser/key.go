@@ -36,10 +36,11 @@ func (p *KeyParser) ParseKey(src string) (*datastore.Key, error) {
 		return nil, fmt.Errorf("gqlparser.ParseKey: %w", err)
 	}
 
-	key := &datastore.Key{Kind: parsedKey.Namespace, Namespace: parsedKey.Namespace}
-	if key.Namespace == "" {
-		key.Namespace = p.Namespace
+	rootKey := &datastore.Key{Kind: parsedKey.Namespace, Namespace: parsedKey.Namespace}
+	if rootKey.Namespace == "" {
+		rootKey.Namespace = p.Namespace
 	}
+	key := rootKey
 	for i := len(parsedKey.Path) - 1; i >= 0; i-- {
 		key.ID = parsedKey.Path[i].ID
 		key.Name = parsedKey.Path[i].Name
@@ -53,5 +54,5 @@ func (p *KeyParser) ParseKey(src string) (*datastore.Key, error) {
 			key = parent
 		}
 	}
-	return key, nil
+	return rootKey, nil
 }
