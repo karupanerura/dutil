@@ -44,7 +44,7 @@ func (r *UpsertCommand) Run(ctx context.Context, opts Options) error {
 			log.Println(key.String())
 		}
 	}
-	if r.Force || !confirm("Update or insert these entities?") {
+	if !r.Force && !confirm("Update or insert these entities?") {
 		return fmt.Errorf("aborted")
 	}
 
@@ -54,7 +54,7 @@ func (r *UpsertCommand) Run(ctx context.Context, opts Options) error {
 		}
 
 		// post confirmation
-		if r.Force || r.Commit || !confirm("Commit?") {
+		if !r.Force && !r.Commit && !confirm("Commit?") {
 			return fmt.Errorf("aborted")
 		}
 
