@@ -4,17 +4,13 @@ go 1.22.2
 
 require (
 	github.com/alecthomas/kong v0.8.1
-	github.com/c-bata/go-prompt v0.2.6
 	github.com/karupanerura/gqlparser v0.0.0-20240414025815-78e42a2f6a5f
+	github.com/manifoldco/promptui v0.9.0
 )
 
 require (
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/mattn/go-tty v0.0.3 // indirect
-	github.com/pkg/term v1.2.0-beta.2 // indirect
 )
 
 require (

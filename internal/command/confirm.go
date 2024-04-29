@@ -1,8 +1,17 @@
 package command
 
-import "github.com/c-bata/go-prompt"
+import (
+	"github.com/manifoldco/promptui"
+)
 
 func confirm(message string) bool {
-	result := prompt.Choose(message+" ", []string{"Yes", "No"}, prompt.OptionShowCompletionAtStart(), prompt.OptionCompletionOnDown())
+	prompt := promptui.Select{
+		Label: message + " [Yes/No]",
+		Items: []string{"Yes", "No"},
+	}
+	_, result, err := prompt.Run()
+	if err != nil {
+		panic(err)
+	}
 	return result == "Yes"
 }
