@@ -44,10 +44,10 @@ func (k *Key) String() string {
 func (k *Key) string(s *strings.Builder) {
 	if k.Parent != nil {
 		k.Parent.string(s)
-		s.WriteString(", ")
+		s.WriteByte(',')
 	}
 	s.WriteString(k.Kind)
-	s.WriteString(", ")
+	s.WriteByte(',')
 	if k.ID != 0 {
 		s.WriteString(strconv.FormatInt(k.ID, 10))
 	} else {

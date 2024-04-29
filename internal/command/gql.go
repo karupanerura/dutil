@@ -1,16 +1,14 @@
 package command
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"io"
 	"os"
-	"strings"
+
+	"google.golang.org/api/iterator"
 
 	"github.com/karupanerura/datastore-cli/internal/datastore"
 	"github.com/karupanerura/datastore-cli/internal/parser"
-	"google.golang.org/api/iterator"
 )
 
 type GQLCommand struct {
@@ -35,12 +33,7 @@ func (r *GQLCommand) Run(ctx context.Context, opts Options) error {
 		}
 
 		props := datastore.NewPropertiesByProtoValueMap(ar)
-		b, err := json.Marshal(props)
-		if err != nil {
-			return err
-		}
-
-		_, err = io.Copy(os.Stdout, io.MultiReader(bytes.NewReader(b), strings.NewReader("\n")))
+		err = json.NewEncoder(os.Stdout).Encode(props)
 		if err != nil {
 			return err
 		}

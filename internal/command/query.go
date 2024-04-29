@@ -9,9 +9,10 @@ import (
 	"os"
 	"strings"
 
+	"google.golang.org/api/iterator"
+
 	"github.com/karupanerura/datastore-cli/internal/datastore"
 	"github.com/karupanerura/datastore-cli/internal/parser"
-	"google.golang.org/api/iterator"
 )
 
 type FieldAndAlias struct {
