@@ -52,6 +52,7 @@ func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
 	if err != nil {
 		return err
 	}
+	defer client.Close()
 
 	query := datastore.NewQuery(r.Kind)
 	if r.KeysOnly {

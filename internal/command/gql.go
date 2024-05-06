@@ -20,6 +20,7 @@ func (r *GQLCommand) Run(ctx context.Context, opts Options) error {
 	if err != nil {
 		return err
 	}
+	defer client.Close()
 
 	qp := &parser.QueryParser{Namespace: opts.Namespace}
 	q, aq, err := qp.ParseGQL(r.Query)

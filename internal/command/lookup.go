@@ -20,6 +20,7 @@ func (r *LookupCommand) Run(ctx context.Context, opts Options) error {
 	if err != nil {
 		return err
 	}
+	defer client.Close()
 
 	keyParser := &parser.KeyParser{Namespace: opts.Namespace}
 	keys, err := keyParser.ParseKeys(r.Keys)

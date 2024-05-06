@@ -22,6 +22,7 @@ func (r *UpsertCommand) Run(ctx context.Context, opts Options) error {
 	if err != nil {
 		return err
 	}
+	defer client.Close()
 
 	var entities []*datastore.Entity
 	var keys datastore.Keys
