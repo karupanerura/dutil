@@ -1,12 +1,15 @@
 package datastore
 
 import (
+	"time"
+
 	"cloud.google.com/go/datastore"
 )
 
 type Entity struct {
-	Key        *Key       `json:"key"`
-	Properties []Property `json:"properties"`
+	Key        *Key            `json:"key"`
+	Properties []Property      `json:"properties,omitempty"`
+	Metadata   *EntityMetadata `json:"metadata,omitempty"`
 }
 
 func (e *Entity) LoadKey(key *datastore.Key) error {
@@ -28,4 +31,10 @@ func (e *Entity) Save() ([]datastore.Property, error) {
 		props[i] = prop.toDatastoreProperty()
 	}
 	return props, nil
+}
+
+type EntityMetadata struct {
+	Version    int64
+	CreateTime time.Time
+	UpdateTime time.Time
 }

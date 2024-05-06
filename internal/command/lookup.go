@@ -12,7 +12,8 @@ import (
 )
 
 type LookupCommand struct {
-	Keys []string `arg:"" name:"keys" help:"Keys to lookup (format: https://support.google.com/cloud/answer/6361641)"`
+	Keys         []string `arg:"" name:"keys" help:"Keys to lookup (format: https://support.google.com/cloud/answer/6361641)"`
+	WithMetadata bool     `name:"with-metadata" help:"Lookup with internal metadata in datastore (EXPERIMENTAL)"`
 }
 
 func (r *LookupCommand) Run(ctx context.Context, opts Options) error {
@@ -39,6 +40,17 @@ func (r *LookupCommand) Run(ctx context.Context, opts Options) error {
 			}
 		} else {
 			return err
+		}
+	}
+
+	if r.WithMetadata {
+		llc := datastore.NewLowLevelClient(client)
+		for i, key := range keys {
+			meta, err := llc.GetMetadata(ctx, key.ToDatastore())
+			if err != nil {
+				return err
+			}
+			entities[i].Metadata = meta
 		}
 	}
 

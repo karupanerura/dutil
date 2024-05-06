@@ -42,7 +42,12 @@ Flags:
   -d, --databaseId=STRING       Cloud Datastore database ID
   -n, --namespace=STRING        Cloud Datastore namespace
       --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+
+      --with-metadata           Lookup with internal metadata in datastore (EXPERIMENTAL)
 ```
+
+NOTE: `--with-metadata` is an experimental feature to lookup with datastore internal metadata.
+To simplify implementation, it separates API calls for each key.
 
 ### query
 
