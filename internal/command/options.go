@@ -14,6 +14,9 @@ type Options struct {
 
 	// EmulatorHost is Cloud Datastore emulator host
 	EmulatorHost string `env:"DATASTORE_EMULATOR_HOST" help:"Cloud Datastore emulator host" optional:""`
+
+	// Version shows the command's version
+	Version bool `name:"version" help:"Show version"`
 }
 
 func (c *Options) Datastore() datastore.Options {

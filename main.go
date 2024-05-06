@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 
 	"github.com/alecthomas/kong"
 	"github.com/karupanerura/datastore-cli/internal/command"
+	"github.com/karupanerura/datastore-cli/internal/version"
 )
 
 type CLI struct {
@@ -19,6 +23,11 @@ type CLI struct {
 }
 
 func main() {
+	if slices.Contains(os.Args[1:], "--version") {
+		fmt.Println(version.Value)
+		return
+	}
+
 	var opts CLI
 	c := kong.Parse(&opts)
 	c.FatalIfErrorf(c.Error)

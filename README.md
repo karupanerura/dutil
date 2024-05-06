@@ -148,10 +148,10 @@ $ datastore-cli -p my-project1 query MyKind --where 'prop > 2' --keys-only --for
 
 ## Install
 
-Pre-built binaries are available on: https://github.com/karupanerura/datastore-cli/releases/tag/v0.0.4
+Pre-built binaries are available on: https://github.com/karupanerura/datastore-cli/releases/tag/v0.0.5
 
 ```prompt
-$ VERSION=0.0.4
+$ VERSION=0.0.5
 $ curl -sfLO https://github.com/karupanerura/datastore-cli/releases/download/v${VERSION}/datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
 $ tar zxf datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
 $ install -m 0755 datastore-cli $PREFIX
