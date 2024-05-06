@@ -26,7 +26,7 @@ type CLI struct {
 
 func main() {
 	if slices.Contains(os.Args[1:], "--version") {
-		fmt.Println(version.Value)
+		fmt.Println(version.Name)
 		return
 	}
 
