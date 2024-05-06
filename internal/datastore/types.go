@@ -11,6 +11,13 @@ type Client = datastore.Client
 
 type Transaction = datastore.Transaction
 
+type Mutation = datastore.Mutation
+
+var (
+	NewInsert = datastore.NewInsert
+	NewUpdate = datastore.NewUpdate
+)
+
 type MultiError = datastore.MultiError
 
 var ErrNoSuchEntity = datastore.ErrNoSuchEntity

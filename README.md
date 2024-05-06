@@ -13,11 +13,16 @@ Flags:
   -d, --databaseId=STRING       Cloud Datastore database ID
   -n, --namespace=STRING        Cloud Datastore namespace
       --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+      --version                 Show version
 
 Commands:
   lookup --projectId=STRING <keys> ...
 
   query --projectId=STRING <kind>
+
+  insert --projectId=STRING
+
+  update --projectId=STRING
 
   upsert --projectId=STRING
 
@@ -97,6 +102,40 @@ Flags:
   -d, --databaseId=STRING       Cloud Datastore database ID
   -n, --namespace=STRING        Cloud Datastore namespace
       --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+```
+
+### insert
+
+```
+Usage: datastore-cli insert --projectId=STRING
+
+Flags:
+  -h, --help                    Show context-sensitive help.
+  -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
+  -d, --databaseId=STRING       Cloud Datastore database ID
+  -n, --namespace=STRING        Cloud Datastore namespace
+      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+
+  -f, --force                   Force insert without confirmation ($DATASTORE_CLI_FORCE_INSERT)
+  -c, --commit                  Commit transaction without confirmation
+  -s, --silent                  Silent mode
+```
+
+### update
+
+```
+Usage: datastore-cli update --projectId=STRING
+
+Flags:
+  -h, --help                    Show context-sensitive help.
+  -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
+  -d, --databaseId=STRING       Cloud Datastore database ID
+  -n, --namespace=STRING        Cloud Datastore namespace
+      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
+
+  -f, --force                   Force update without confirmation ($DATASTORE_CLI_FORCE_UPDATE)
+  -c, --commit                  Commit transaction without confirmation
+  -s, --silent                  Silent mode
 ```
 
 ### upsert
