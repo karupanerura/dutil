@@ -2,6 +2,28 @@
 
 Google Cloud Datastore unofficial CLI client.
 
+## Examples
+
+```prompt
+$ datastore-cli -p my-project1 lookup 'KEY(MyKind, "foo")'
+$ datastore-cli -p my-project1 gql 'SELECT * FROM MyKind WHERE prop > 2'
+$ datastore-cli -p my-project1 query MyKind --ancestor 'KEY(MyParentKind, "foo")' > dump.jsonl
+$ datastore-cli -p my-project2 upsert < dump.jsonl
+$ datastore-cli -p my-project1 query MyKind --where 'prop > 2' --keys-only --format=encoded | xargs datastore-cli -p my-project1 delete
+```
+
+## Install
+
+Pre-built binaries are available on: https://github.com/karupanerura/datastore-cli/releases/tag/v0.0.6
+
+```prompt
+$ VERSION=0.0.6
+$ curl -sfLO https://github.com/karupanerura/datastore-cli/releases/download/v${VERSION}/datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
+$ tar zxf datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
+$ install -m 0755 datastore-cli $PREFIX
+$ rm datastore-cli datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
+```
+
 ## Usage
 
 ```
@@ -173,28 +195,6 @@ Flags:
   -f, --force                   Force delete without confirmation ($DATASTORE_CLI_FORCE_DELETE)
   -c, --commit                  Commit transaction without confirmation
   -s, --silent                  Silent mode
-```
-
-## Examples
-
-```prompt
-$ datastore-cli -p my-project1 lookup 'KEY(MyKind, "foo")'
-$ datastore-cli -p my-project1 gql 'SELECT * FROM MyKind WHERE prop > 2'
-$ datastore-cli -p my-project1 query MyKind --ancestor 'KEY(MyParentKind, "foo")' > dump.jsonl
-$ datastore-cli -p my-project2 upsert < dump.jsonl
-$ datastore-cli -p my-project1 query MyKind --where 'prop > 2' --keys-only --format=encoded | xargs datastore-cli -p my-project1 delete
-```
-
-## Install
-
-Pre-built binaries are available on: https://github.com/karupanerura/datastore-cli/releases/tag/v0.0.6
-
-```prompt
-$ VERSION=0.0.6
-$ curl -sfLO https://github.com/karupanerura/datastore-cli/releases/download/v${VERSION}/datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
-$ tar zxf datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
-$ install -m 0755 datastore-cli $PREFIX
-$ rm datastore-cli datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
 ```
 
 ## Format
