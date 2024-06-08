@@ -42,6 +42,7 @@ type QueryCommand struct {
 	Order       []string      `name:"order" optional:"" group:"Query" help:"Comma separated property names with optional '-' prefix for descending order"`
 	Limit       int           `name:"limit" optional:""  group:"Query" help:"Limit number of entities to query"`
 	Offset      int           `name:"offset" optional:"" group:"Query" help:"Offset number of entities to query"`
+	Explain     bool          `name:"explain" optional:"" group:"Query" help:"Explain query execution plan"`
 	Count       *string       `name:"count" optional:"" group:"Aggregation" help:"Count entities using aggregation query, the value is alias name of the count result. (e.g. --count= or --count=myAlias)"`
 	Sum         FieldAndAlias `name:"sum" optional:"" group:"Aggregation" help:"Sum entities field using aggregation query, the value is a target field name and optional alias name. (e.g. --sum=myField or --sum=myField=myAlias)"`
 	Average     FieldAndAlias `name:"avg" optional:"" group:"Aggregation" help:"Average entities field using aggregation query, the value is a target field name and optional alias name. (e.g. --sum=myField or --sum=myField=myAlias)"`
@@ -127,9 +128,25 @@ func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
 		return nil
 	}
 
+	options := []datastore.RunOption{}
+	if r.Explain {
+		options = append(options, datastore.ExplainOptions{Analyze: true})
+	}
+
 	keyFormatter := datastore.KeyFormatter{Format: r.KeyFormat}
 
-	iter := client.Run(ctx, query)
+	iter := client.RunWithOptions(ctx, query, options...)
+	if r.Explain {
+		// read all
+		for {
+			if _, err := iter.Next(nil); err == iterator.Done {
+				return json.NewEncoder(os.Stdout).Encode(iter.ExplainMetrics)
+			} else if err != nil {
+				return err
+			}
+		}
+	}
+
 	encoder := json.NewEncoder(os.Stdout)
 	for {
 		var entity datastore.Entity

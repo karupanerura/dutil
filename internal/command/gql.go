@@ -12,7 +12,8 @@ import (
 )
 
 type GQLCommand struct {
-	Query string `arg:"" name:"query" help:"GQL Query"`
+	Query   string `arg:"" name:"query" help:"GQL Query"`
+	Explain bool   `name:"explain" optional:"" group:"Query" help:"Explain query execution plan"`
 }
 
 func (r *GQLCommand) Run(ctx context.Context, opts Options) error {
@@ -41,7 +42,23 @@ func (r *GQLCommand) Run(ctx context.Context, opts Options) error {
 		return nil
 	}
 
-	iter := client.Run(ctx, q)
+	options := []datastore.RunOption{}
+	if r.Explain {
+		options = append(options, datastore.ExplainOptions{Analyze: true})
+	}
+
+	iter := client.RunWithOptions(ctx, q, options...)
+	if r.Explain {
+		// read all
+		for {
+			if _, err := iter.Next(nil); err == iterator.Done {
+				return json.NewEncoder(os.Stdout).Encode(iter.ExplainMetrics)
+			} else if err != nil {
+				return err
+			}
+		}
+	}
+
 	encoder := json.NewEncoder(os.Stdout)
 	for {
 		var entity datastore.Entity

@@ -36,6 +36,13 @@ type OrFilter = datastore.OrFilter
 
 type PropertyFilter = datastore.PropertyFilter
 
+type RunOption = datastore.RunOption
+
+type (
+	ExplainOptions = datastore.ExplainOptions
+	ExplainMetrics = datastore.ExplainMetrics
+)
+
 type GeoPoint struct {
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`
