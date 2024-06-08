@@ -89,30 +89,50 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 		}, nil
 
 	case *gqlparser.EitherComparatorCondition:
-		if _, isSlice := c.Value.([]any); isSlice {
+		if values, isSlice := c.Value.([]any); isSlice {
+			if c.Property == "__key__" {
+				keys := make([]any, len(values))
+				for i, v := range values {
+					key, ok := v.(*gqlparser.Key)
+					if !ok {
+						return nil, datastore.PropertyFilter{}, fmt.Errorf("__key__ comparator value must be a key")
+					}
+					keys[i] = p.convertKey(key).ToDatastore()
+				}
+				values = keys
+			}
 			switch c.Comparator {
 			case gqlparser.EqualsEitherComparator:
 				return nil, datastore.PropertyFilter{
 					FieldName: c.Property,
 					Operator:  "in",
-					Value:     c.Value,
+					Value:     values,
 				}, nil
 			case gqlparser.NotEqualsEitherComparator:
 				return nil, datastore.PropertyFilter{
 					FieldName: c.Property,
 					Operator:  "not-in",
-					Value:     c.Value,
+					Value:     values,
 				}, nil
 			default:
 				// not a special case, so do following code.
 			}
 		}
+
+		value := c.Value
+		if c.Property == "__key__" {
+			key, ok := c.Value.(*gqlparser.Key)
+			if !ok {
+				return nil, datastore.PropertyFilter{}, fmt.Errorf("__key__ comparator value must be a key")
+			}
+
+			value = p.convertKey(key).ToDatastore()
+		}
 		return nil, datastore.PropertyFilter{
 			FieldName: c.Property,
 			Operator:  string(c.Comparator),
-			Value:     c.Value,
+			Value:     value,
 		}, nil
-
 	default:
 		panic(fmt.Sprintf("unknown condition: %T", c))
 	}
