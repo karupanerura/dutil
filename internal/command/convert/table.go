@@ -34,25 +34,15 @@ func (r *TableCommand) Run(ctx context.Context, opts command.GlobalOptions) erro
 	}
 
 	decoder := json.NewDecoder(os.Stdin)
-	if err := r.run(buildTables(iterate(decoder))); err != nil {
-		return err
+	for table, err := range buildTables(iterate(decoder)) {
+		if err != nil {
+			return err
+		}
+		fmt.Println(table.Draw())
 	}
 	return nil
 }
 
-func (r *TableCommand) run(iter func(func(*texttable.TextTable, error) bool)) (err error) {
-	// after go 1.23
-	// for table, err := range iter {}
-	iter(func(table *texttable.TextTable, innerErr error) bool {
-		if innerErr != nil {
-			err = innerErr
-			return false
-		}
-		fmt.Println(table.Draw())
-		return true
-	})
-	return
-}
 
 type tableEntry struct {
 	Header []string
@@ -72,17 +62,17 @@ type tableBuilder struct {
 func buildTables(iter func(func(tableEntry, error) bool)) func(func(*texttable.TextTable, error) bool) {
 	return func(yield func(*texttable.TextTable, error) bool) {
 		b := tableBuilder{}
-		// after go 1.23
-		// for entry, err := range iter {}
-		iter(func(entry tableEntry, err error) bool {
+		for entry, err := range iter {
 			if err != nil {
-				return yield(nil, err)
+				yield(nil, err)
+				return
 			}
 			if table := b.buildTable(entry); table != nil {
-				return yield(table, nil)
+				if !yield(table, nil) {
+					break
+				}
 			}
-			return true
-		})
+		}
 		if b.table != nil {
 			yield(b.table, nil)
 		}
@@ -137,16 +127,15 @@ func (r *jsonReader[T]) Iter() func(func(T, error) bool) {
 func keyToTableEntryIter(decoder *json.Decoder) func(func(tableEntry, error) bool) {
 	return func(yield func(tableEntry, error) bool) {
 		reader := &jsonReader[*datastore.Key]{decoder: decoder}
-		iter := reader.Iter()
-
-		// after go 1.23
-		// for key, err := range iter {}
-		iter(func(key *datastore.Key, err error) bool {
+		for key, err := range reader.Iter() {
 			if err != nil {
-				return yield(tableEntry{}, err)
+				yield(tableEntry{}, err)
+				break
 			}
-			return yield(keyToTableEntry(key), nil)
-		})
+			if !yield(keyToTableEntry(key), nil) {
+				break
+			}
+		}
 	}
 }
 
@@ -175,13 +164,10 @@ func keyToTableEntry(key *datastore.Key) (entry tableEntry) {
 func entityToTableEntryReader(decoder *json.Decoder) func(func(tableEntry, error) bool) {
 	return func(yield func(tableEntry, error) bool) {
 		reader := &jsonReader[*datastore.Entity]{decoder: decoder}
-		iter := reader.Iter()
-
-		// after go 1.23
-		// for key, err := range iter {}
-		iter(func(entity *datastore.Entity, err error) bool {
+		for entity, err := range reader.Iter() {
 			if err != nil {
-				return yield(tableEntry{}, err)
+				yield(tableEntry{}, err)
+				break
 			}
 
 			var entry tableEntry
@@ -193,8 +179,10 @@ func entityToTableEntryReader(decoder *json.Decoder) func(func(tableEntry, error
 				entry.Header = append(entry.Header, "Version", "CreateTime", "UpdateTime")
 				entry.Row = append(entry.Row, strconv.FormatInt(entity.Metadata.Version, 10), entity.Metadata.CreateTime.String(), entity.Metadata.UpdateTime.String())
 			}
-			return yield(entry, nil)
-		})
+			if !yield(entry, nil) {
+				break
+			}
+		}
 	}
 }
 
@@ -280,13 +268,10 @@ func appendToTableEntryFromProperty(entry *tableEntry, prefix string, prop datas
 func explainToTableEntryReader(decoder *json.Decoder) func(func(tableEntry, error) bool) {
 	return func(yield func(tableEntry, error) bool) {
 		reader := &jsonReader[*datastore.ExplainMetrics]{decoder: decoder}
-		iter := reader.Iter()
-
-		// after go 1.23
-		// for key, err := range iter {}
-		iter(func(metrics *datastore.ExplainMetrics, err error) bool {
+		for metrics, err := range reader.Iter() {
 			if err != nil {
-				return yield(tableEntry{}, err)
+				yield(tableEntry{}, err)
+				break
 			}
 
 			var entry tableEntry
@@ -304,13 +289,16 @@ func explainToTableEntryReader(decoder *json.Decoder) func(func(tableEntry, erro
 			if metrics.ExecutionStats.DebugStats != nil {
 				b, err := json.Marshal(metrics.ExecutionStats.DebugStats)
 				if err != nil {
-					return yield(tableEntry{}, err)
+					yield(tableEntry{}, err)
+					break
 				}
 
 				entry.Header = append(entry.Header, "DebugStats")
 				entry.Row = append(entry.Row, string(b))
 			}
-			return yield(entry, nil)
-		})
+			if !yield(entry, nil) {
+				break
+			}
+		}
 	}
 }
