@@ -9,7 +9,7 @@ Support for datastore mode only. (Patches welcome)
 ## Examples
 
 ```prompt
-$ dutil io lookup -p my-project1 'KEY(MyKind, "foo")'
+$ dutil io lookup -p my-project1 'KEY(MyKind, "foo")' | dutil convert table
 $ dutil io gql -p my-project1  'SELECT * FROM MyKind WHERE prop > 2'
 $ dutil io query MyKind -p my-project1 --ancestor 'KEY(MyParentKind, "foo")' > dump.jsonl
 $ dutil io upsert -p my-project2 < dump.jsonl
@@ -31,6 +31,8 @@ $ rm dutil dutil_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
 ## Usage
 
 ### dutil io
+
+I/O utilities.
 
 ```
 Usage: dutil io <command>
@@ -225,6 +227,33 @@ Flags:
                                 ($DATASTORE_CLI_FORCE_DELETE)
   -c, --commit                  Commit transaction without confirmation
   -s, --silent                  Silent mode
+```
+
+### dutil convert
+
+Data format converters.
+
+```
+Usage: dutil convert <command>
+
+Flags:
+  -h, --help       Show context-sensitive help.
+      --version    Show version
+
+Commands:
+  convert table
+```
+
+#### dutil convert table
+
+```
+Usage: dutil convert table
+
+Flags:
+  -h, --help             Show context-sensitive help.
+      --version          Show version
+
+  -f, --from="entity"    Type of JSON structure to convert to table
 ```
 
 ## Format

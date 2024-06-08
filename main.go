@@ -8,13 +8,15 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/karupanerura/dutil/internal/command"
+	"github.com/karupanerura/dutil/internal/command/convert"
 	"github.com/karupanerura/dutil/internal/command/io"
 	"github.com/karupanerura/dutil/internal/version"
 )
 
 type CLI struct {
 	command.GlobalOptions
-	IO io.Commands `cmd:""`
+	IO      io.Commands      `cmd:""`
+	Convert convert.Commands `cmd:""`
 }
 
 func main() {
