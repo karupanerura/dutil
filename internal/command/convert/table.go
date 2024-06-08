@@ -258,7 +258,8 @@ func appendToTableEntryFromProperty(entry *tableEntry, prefix string, prop datas
 
 	case datastore.KeyType:
 		v := v.Value.(*datastore.Key)
-		entry.push(keyToTableEntry(v))
+		entry.Header = append(entry.Header, prefix+prop.Name)
+		entry.Row = append(entry.Row, v.String())
 		return
 
 	case datastore.NullType:
