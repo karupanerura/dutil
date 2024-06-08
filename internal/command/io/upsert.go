@@ -1,4 +1,4 @@
-package command
+package io
 
 import (
 	"context"
@@ -8,24 +8,26 @@ import (
 	"log"
 	"os"
 
-	"github.com/karupanerura/datastore-cli/internal/datastore"
+	"github.com/karupanerura/dutil/internal/command"
+	"github.com/karupanerura/dutil/internal/datastore"
 )
 
-type UpdateCommand struct {
-	Force  bool `name:"force" short:"f" optional:"" env:"DATASTORE_CLI_FORCE_UPDATE" help:"Force update without confirmation"`
+type UpsertCommand struct {
+	DatastoreOptions
+	Force  bool `name:"force" short:"f" optional:"" env:"DATASTORE_CLI_FORCE_UPSERT" help:"Force upsert without confirmation"`
 	Commit bool `name:"commit" short:"c" optional:"" help:"Commit transaction without confirmation"`
 	Silent bool `name:"silent" short:"s" optional:"" help:"Silent mode"`
 }
 
-func (r *UpdateCommand) Run(ctx context.Context, opts Options) error {
-	client, err := datastore.NewClient(ctx, opts.Datastore())
+func (r *UpsertCommand) Run(ctx context.Context, opts command.GlobalOptions) error {
+	client, err := r.DatastoreOptions.CreateClient(ctx)
 	if err != nil {
 		return err
 	}
 	defer client.Close()
 
+	var entities []*datastore.Entity
 	var keys datastore.Keys
-	var mutations []*datastore.Mutation
 	decoder := json.NewDecoder(os.Stdin)
 	for {
 		var entity *datastore.Entity
@@ -35,23 +37,23 @@ func (r *UpdateCommand) Run(ctx context.Context, opts Options) error {
 			return err
 		}
 		keys = append(keys, entity.Key)
-		mutations = append(mutations, datastore.NewUpdate(entity.Key.ToDatastore(), entity))
+		entities = append(entities, entity)
 	}
 
 	// pre confirmation
 	if !r.Silent {
-		log.Printf("%d keys to update:", len(keys))
+		log.Printf("%d keys to upsert:", len(keys))
 		for _, key := range keys {
 			log.Println(key.String())
 		}
 	}
-	if !r.Force && !confirm("Update these entities?") {
+	if !r.Force && !confirm("Update or insert these entities?") {
 		return fmt.Errorf("aborted")
 	}
 
 	if _, err = client.RunInTransaction(ctx, func(tx *datastore.Transaction) error {
-		if _, err := tx.Mutate(mutations...); err != nil {
-			return fmt.Errorf("client.Mutate: %w", err)
+		if _, err := tx.PutMulti(keys.ToDatastore(), entities); err != nil {
+			return fmt.Errorf("client.PutMulti: %w", err)
 		}
 
 		// post confirmation

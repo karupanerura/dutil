@@ -3,7 +3,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/karupanerura/datastore-cli/internal/datastore"
+	"github.com/karupanerura/dutil/internal/datastore"
 	"github.com/karupanerura/gqlparser"
 )
 

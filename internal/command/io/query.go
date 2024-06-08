@@ -1,4 +1,4 @@
-package command
+package io
 
 import (
 	"bytes"
@@ -11,8 +11,9 @@ import (
 
 	"google.golang.org/api/iterator"
 
-	"github.com/karupanerura/datastore-cli/internal/datastore"
-	"github.com/karupanerura/datastore-cli/internal/parser"
+	"github.com/karupanerura/dutil/internal/command"
+	"github.com/karupanerura/dutil/internal/datastore"
+	"github.com/karupanerura/dutil/internal/parser"
 )
 
 type FieldAndAlias struct {
@@ -31,6 +32,7 @@ func (a *FieldAndAlias) UnmarshalText(text []byte) error {
 }
 
 type QueryCommand struct {
+	DatastoreOptions
 	Kind        string        `arg:"" name:"kind" help:"Entity kind"`
 	KeyFormat   string        `name:"key-format" enum:"json,gql,encoded" default:"json" help:"Key format to output for keys only query"`
 	KeysOnly    bool          `name:"keys-only" optional:"" group:"Query" help:"Return only keys of entities"`
@@ -48,8 +50,8 @@ type QueryCommand struct {
 	Average     FieldAndAlias `name:"avg" optional:"" group:"Aggregation" help:"Average entities field using aggregation query, the value is a target field name and optional alias name. (e.g. --sum=myField or --sum=myField=myAlias)"`
 }
 
-func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
-	client, err := datastore.NewClient(ctx, opts.Datastore())
+func (r *QueryCommand) Run(ctx context.Context, opts command.GlobalOptions) error {
+	client, err := r.DatastoreOptions.CreateClient(ctx)
 	if err != nil {
 		return err
 	}
@@ -59,11 +61,11 @@ func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
 	if r.KeysOnly {
 		query = query.KeysOnly()
 	}
-	if opts.Namespace != "" {
-		query = query.Namespace(opts.Namespace)
+	if r.Namespace != "" {
+		query = query.Namespace(r.Namespace)
 	}
 	if r.AncestorKey != "" {
-		keyParser := &parser.KeyParser{Namespace: opts.Namespace}
+		keyParser := &parser.KeyParser{Namespace: r.Namespace}
 		key, err := keyParser.ParseKey(r.AncestorKey)
 		if err != nil {
 			return fmt.Errorf("keyParser.ParseKey: %w", err)
@@ -80,7 +82,7 @@ func (r *QueryCommand) Run(ctx context.Context, opts Options) error {
 		query = query.Project(r.Project...)
 	}
 	if r.Filter != "" {
-		filterParser := &parser.FilterParser{Namespace: opts.Namespace}
+		filterParser := &parser.FilterParser{Namespace: r.Namespace}
 		ancestor, filter, err := filterParser.ParseFilter(r.Filter)
 		if err != nil {
 			return fmt.Errorf("filterParser.ParseFilter: %w", err)

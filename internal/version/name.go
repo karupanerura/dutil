@@ -2,7 +2,6 @@ package version
 
 import "strconv"
 
-
 var Name string
 
 func init() {

@@ -1,119 +1,136 @@
-# datastore-cli
+# dutil
 
-Google Cloud Datastore unofficial CLI client.
+Google Cloud Firestore datastore mode unofficial CLI client and utilities. (dutil is named from `Datastore UTILity`.)
+
+## Limitation
+
+Support for datastore mode only. (Patches welcome)
 
 ## Examples
 
 ```prompt
-$ datastore-cli -p my-project1 lookup 'KEY(MyKind, "foo")'
-$ datastore-cli -p my-project1 gql 'SELECT * FROM MyKind WHERE prop > 2'
-$ datastore-cli -p my-project1 query MyKind --ancestor 'KEY(MyParentKind, "foo")' > dump.jsonl
-$ datastore-cli -p my-project2 upsert < dump.jsonl
-$ datastore-cli -p my-project1 query MyKind --where 'prop > 2' --keys-only --format=encoded | xargs datastore-cli -p my-project1 delete
+$ dutil io lookup -p my-project1 'KEY(MyKind, "foo")'
+$ dutil io gql -p my-project1  'SELECT * FROM MyKind WHERE prop > 2'
+$ dutil io query MyKind -p my-project1 --ancestor 'KEY(MyParentKind, "foo")' > dump.jsonl
+$ dutil io upsert -p my-project2 < dump.jsonl
+$ dutil io query MyKind -p my-project1 --where 'prop > 2' --keys-only --format=encoded | xargs dutil io delete -p my-project1
 ```
 
 ## Install
 
-Pre-built binaries are available on: https://github.com/karupanerura/datastore-cli/releases/tag/v0.0.6
+Pre-built binaries are available on: https://github.com/karupanerura/dutil/releases/tag/v0.0.6
 
 ```prompt
 $ VERSION=0.0.6
-$ curl -sfLO https://github.com/karupanerura/datastore-cli/releases/download/v${VERSION}/datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
-$ tar zxf datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
-$ install -m 0755 datastore-cli $PREFIX
-$ rm datastore-cli datastore-cli_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
+$ curl -sfLO https://github.com/karupanerura/dutil/releases/download/v${VERSION}/dutil_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
+$ tar zxf dutil_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
+$ install -m 0755 dutil $PREFIX
+$ rm dutil dutil_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
 ```
 
 ## Usage
 
+### dutil io
+
 ```
-Usage: datastore-cli --projectId=STRING <command>
+Usage: dutil io <command>
 
 Flags:
-  -h, --help                    Show context-sensitive help.
-  -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
-  -d, --databaseId=STRING       Cloud Datastore database ID
-  -n, --namespace=STRING        Cloud Datastore namespace
-      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
-      --version                 Show version
+  -h, --help       Show context-sensitive help.
+      --version    Show version
 
 Commands:
-  lookup --projectId=STRING <keys> ...
+  io lookup --projectId=STRING <keys> ...
 
-  query --projectId=STRING <kind>
+  io query --projectId=STRING <kind>
 
-  insert --projectId=STRING
+  io insert --projectId=STRING
 
-  update --projectId=STRING
+  io update --projectId=STRING
 
-  upsert --projectId=STRING
+  io upsert --projectId=STRING
 
-  delete --projectId=STRING <keys> ...
+  io delete --projectId=STRING <keys> ...
 
-  gql --projectId=STRING <query>
-
-Run "datastore-cli <command> --help" for more information on a command.
+  io gql --projectId=STRING <query>
 ```
 
-### lookup
+#### dutil io lookup
 
 ```
-Usage: datastore-cli lookup --projectId=STRING <keys> ...
+Usage: dutil io lookup --projectId=STRING <keys> ...
 
 Arguments:
-  <keys> ...    Keys to lookup (format: https://support.google.com/cloud/answer/6361641)
+  <keys> ...    Keys to lookup (format:
+                https://support.google.com/cloud/answer/6361641)
 
 Flags:
   -h, --help                    Show context-sensitive help.
+      --version                 Show version
+
   -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
   -d, --databaseId=STRING       Cloud Datastore database ID
   -n, --namespace=STRING        Cloud Datastore namespace
-      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
-
-      --with-metadata           Lookup with internal metadata in datastore (EXPERIMENTAL)
+      --emulator-host=STRING    Cloud Datastore emulator host
+                                ($DATASTORE_EMULATOR_HOST)
+      --with-metadata           Lookup with internal metadata in datastore
+                                (EXPERIMENTAL)
 ```
 
 NOTE: `--with-metadata` is an experimental feature to lookup with datastore internal metadata.
 To simplify implementation, it separates API calls for each key.
 
-### query
+#### dutil io query
 
 ```
-Usage: datastore-cli query --projectId=STRING <kind>
+Usage: dutil io query --projectId=STRING <kind>
 
 Arguments:
   <kind>    Entity kind
 
 Flags:
   -h, --help                    Show context-sensitive help.
+      --version                 Show version
+
   -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
   -d, --databaseId=STRING       Cloud Datastore database ID
   -n, --namespace=STRING        Cloud Datastore namespace
-      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
-
+      --emulator-host=STRING    Cloud Datastore emulator host
+                                ($DATASTORE_EMULATOR_HOST)
       --key-format="json"       Key format to output for keys only query
 
 Query
   --keys-only                    Return only keys of entities
-  --ancestor=STRING              Ancestor key to query (format: https://support.google.com/cloud/answer/6361641)
+  --ancestor=STRING              Ancestor key to query (format:
+                                 https://support.google.com/cloud/answer/6361641)
   --distinct
   --distinctOn=DISTINCTON,...
   --project=PROJECT,...
-  --filter=STRING                Entity filter query (format: GQL compound-condition https://cloud.google.com/datastore/docs/reference/gql_reference)
-  --order=ORDER,...              Comma separated property names with optional '-' prefix for descending order
+  --filter=STRING                Entity filter query (format:
+                                 GQL compound-condition
+                                 https://cloud.google.com/datastore/docs/reference/gql_reference)
+  --order=ORDER,...              Comma separated property names with optional
+                                 '-' prefix for descending order
   --limit=INT                    Limit number of entities to query
   --offset=INT                   Offset number of entities to query
+  --explain                      Explain query execution plan
 
 Aggregation
-  --count=COUNT            Count entities using aggregation query, the value is alias name of the count result. (e.g. --count= or --count=myAlias)
-  --sum=FIELD-AND-ALIAS    Sum entities field using aggregation query, the value is a target field name and optional alias name. (e.g. --sum=myField or --sum=myField=myAlias)
-  --avg=FIELD-AND-ALIAS    Average entities field using aggregation query, the value is a target field name and optional alias name. (e.g. --sum=myField or --sum=myField=myAlias)
+  --count=COUNT            Count entities using aggregation query, the value
+                           is alias name of the count result. (e.g. --count= or
+                           --count=myAlias)
+  --sum=FIELD-AND-ALIAS    Sum entities field using aggregation query, the value
+                           is a target field name and optional alias name. (e.g.
+                           --sum=myField or --sum=myField=myAlias)
+  --avg=FIELD-AND-ALIAS    Average entities field using aggregation query, the
+                           value is a target field name and optional alias name.
+                           (e.g. --sum=myField or --sum=myField=myAlias)
 ```
 
-### gql
+#### dutil io gql
 
 ```
-Usage: datastore-cli gql --projectId=STRING <query>
+Usage: dutil io gql --projectId=STRING <query>
 
 Arguments:
   <query>    GQL Query
@@ -126,73 +143,86 @@ Flags:
       --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
 ```
 
-### insert
+#### dutil io insert
 
 ```
-Usage: datastore-cli insert --projectId=STRING
+Usage: dutil io insert --projectId=STRING
 
 Flags:
   -h, --help                    Show context-sensitive help.
+      --version                 Show version
+
   -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
   -d, --databaseId=STRING       Cloud Datastore database ID
   -n, --namespace=STRING        Cloud Datastore namespace
-      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
-
-  -f, --force                   Force insert without confirmation ($DATASTORE_CLI_FORCE_INSERT)
+      --emulator-host=STRING    Cloud Datastore emulator host
+                                ($DATASTORE_EMULATOR_HOST)
+  -f, --force                   Force insert without confirmation
+                                ($DATASTORE_CLI_FORCE_INSERT)
   -c, --commit                  Commit transaction without confirmation
   -s, --silent                  Silent mode
 ```
 
-### update
+#### dutil io update
 
 ```
-Usage: datastore-cli update --projectId=STRING
+Usage: dutil io update --projectId=STRING
 
 Flags:
   -h, --help                    Show context-sensitive help.
+      --version                 Show version
+
   -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
   -d, --databaseId=STRING       Cloud Datastore database ID
   -n, --namespace=STRING        Cloud Datastore namespace
-      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
-
-  -f, --force                   Force update without confirmation ($DATASTORE_CLI_FORCE_UPDATE)
+      --emulator-host=STRING    Cloud Datastore emulator host
+                                ($DATASTORE_EMULATOR_HOST)
+  -f, --force                   Force update without confirmation
+                                ($DATASTORE_CLI_FORCE_UPDATE)
   -c, --commit                  Commit transaction without confirmation
   -s, --silent                  Silent mode
 ```
 
-### upsert
+#### dutil io upsert
 
 ```
-Usage: datastore-cli upsert --projectId=STRING
+Usage: dutil io upsert --projectId=STRING
 
 Flags:
   -h, --help                    Show context-sensitive help.
+      --version                 Show version
+
   -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
   -d, --databaseId=STRING       Cloud Datastore database ID
   -n, --namespace=STRING        Cloud Datastore namespace
-      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
-
-  -f, --force                   Force upsert without confirmation ($DATASTORE_CLI_FORCE_UPSERT)
+      --emulator-host=STRING    Cloud Datastore emulator host
+                                ($DATASTORE_EMULATOR_HOST)
+  -f, --force                   Force upsert without confirmation
+                                ($DATASTORE_CLI_FORCE_UPSERT)
   -c, --commit                  Commit transaction without confirmation
   -s, --silent                  Silent mode
 ```
 
-### delete
+#### dutil io delete
 
 ```
-Usage: datastore-cli delete --projectId=STRING <keys> ...
+Usage: dutil io delete --projectId=STRING <keys> ...
 
 Arguments:
-  <keys> ...    Keys to delete (format: https://support.google.com/cloud/answer/6361641)
+  <keys> ...    Keys to delete (format:
+                https://support.google.com/cloud/answer/6361641)
 
 Flags:
   -h, --help                    Show context-sensitive help.
+      --version                 Show version
+
   -p, --projectId=STRING        Google Cloud Project ID ($DATASTORE_PROJECT_ID)
   -d, --databaseId=STRING       Cloud Datastore database ID
   -n, --namespace=STRING        Cloud Datastore namespace
-      --emulator-host=STRING    Cloud Datastore emulator host ($DATASTORE_EMULATOR_HOST)
-
-  -f, --force                   Force delete without confirmation ($DATASTORE_CLI_FORCE_DELETE)
+      --emulator-host=STRING    Cloud Datastore emulator host
+                                ($DATASTORE_EMULATOR_HOST)
+  -f, --force                   Force delete without confirmation
+                                ($DATASTORE_CLI_FORCE_DELETE)
   -c, --commit                  Commit transaction without confirmation
   -s, --silent                  Silent mode
 ```

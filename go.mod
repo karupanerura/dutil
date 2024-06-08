@@ -1,4 +1,4 @@
-module github.com/karupanerura/datastore-cli
+module github.com/karupanerura/dutil
 
 go 1.22.2
 

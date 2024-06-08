@@ -8,9 +8,9 @@ RUN go mod download
 
 COPY ./ ./
 
-RUN go build -o datastore-cli .
+RUN go build -o dutil .
 
 FROM gcr.io/distroless/base-debian12
 
-COPY --from=builder /app/datastore-cli /
-ENTRYPOINT ["/datastore-cli"]
+COPY --from=builder /app/dutil /
+ENTRYPOINT ["/dutil"]

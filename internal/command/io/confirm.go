@@ -1,4 +1,4 @@
-package command
+package io
 
 import (
 	"github.com/manifoldco/promptui"

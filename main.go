@@ -3,42 +3,35 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 	"os/signal"
-	"slices"
 	"syscall"
 
 	"github.com/alecthomas/kong"
-	"github.com/karupanerura/datastore-cli/internal/command"
-	"github.com/karupanerura/datastore-cli/internal/version"
+	"github.com/karupanerura/dutil/internal/command"
+	"github.com/karupanerura/dutil/internal/command/io"
+	"github.com/karupanerura/dutil/internal/version"
 )
 
 type CLI struct {
-	command.Options
-	Lookup command.LookupCommand `cmd:""`
-	Query  command.QueryCommand  `cmd:""`
-	Insert command.InsertCommand `cmd:""`
-	Update command.UpdateCommand `cmd:""`
-	Upsert command.UpsertCommand `cmd:""`
-	Delete command.DeleteCommand `cmd:""`
-	GQL    command.GQLCommand    `cmd:""`
+	command.GlobalOptions
+	IO io.Commands `cmd:""`
 }
 
 func main() {
-	if slices.Contains(os.Args[1:], "--version") {
-		fmt.Println(version.Name)
-		return
-	}
-
 	var opts CLI
 	c := kong.Parse(&opts)
 	c.FatalIfErrorf(c.Error)
+
+	if opts.Version {
+		fmt.Println(version.Name)
+		return
+	}
 
 	ctx := context.Background()
 	ctx, stop := signal.NotifyContext(ctx, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP)
 	defer stop()
 
 	c.BindTo(ctx, (*context.Context)(nil))
-	c.BindTo(opts.Options, (*command.Options)(nil))
+	c.BindTo(opts.GlobalOptions, (*command.GlobalOptions)(nil))
 	c.FatalIfErrorf(c.Run())
 }

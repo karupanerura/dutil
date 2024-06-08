@@ -1,4 +1,4 @@
-package command
+package io
 
 import (
 	"context"
@@ -7,23 +7,25 @@ import (
 
 	"google.golang.org/api/iterator"
 
-	"github.com/karupanerura/datastore-cli/internal/datastore"
-	"github.com/karupanerura/datastore-cli/internal/parser"
+	"github.com/karupanerura/dutil/internal/command"
+	"github.com/karupanerura/dutil/internal/datastore"
+	"github.com/karupanerura/dutil/internal/parser"
 )
 
 type GQLCommand struct {
+	DatastoreOptions
 	Query   string `arg:"" name:"query" help:"GQL Query"`
 	Explain bool   `name:"explain" optional:"" group:"Query" help:"Explain query execution plan"`
 }
 
-func (r *GQLCommand) Run(ctx context.Context, opts Options) error {
-	client, err := datastore.NewClient(ctx, opts.Datastore())
+func (r *GQLCommand) Run(ctx context.Context, opts command.GlobalOptions) error {
+	client, err := r.DatastoreOptions.CreateClient(ctx)
 	if err != nil {
 		return err
 	}
 	defer client.Close()
 
-	qp := &parser.QueryParser{Namespace: opts.Namespace}
+	qp := &parser.QueryParser{Namespace: r.Namespace}
 	q, aq, err := qp.ParseGQL(r.Query)
 	if err != nil {
 		return err

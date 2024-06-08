@@ -1,4 +1,4 @@
-package command
+package io
 
 import (
 	"context"
@@ -7,23 +7,25 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/karupanerura/datastore-cli/internal/datastore"
-	"github.com/karupanerura/datastore-cli/internal/parser"
+	"github.com/karupanerura/dutil/internal/command"
+	"github.com/karupanerura/dutil/internal/datastore"
+	"github.com/karupanerura/dutil/internal/parser"
 )
 
 type LookupCommand struct {
+	DatastoreOptions
 	Keys         []string `arg:"" name:"keys" help:"Keys to lookup (format: https://support.google.com/cloud/answer/6361641)"`
 	WithMetadata bool     `name:"with-metadata" help:"Lookup with internal metadata in datastore (EXPERIMENTAL)"`
 }
 
-func (r *LookupCommand) Run(ctx context.Context, opts Options) error {
-	client, err := datastore.NewClient(ctx, opts.Datastore())
+func (r *LookupCommand) Run(ctx context.Context, opts command.GlobalOptions) error {
+	client, err := r.CreateClient(ctx)
 	if err != nil {
 		return err
 	}
 	defer client.Close()
 
-	keyParser := &parser.KeyParser{Namespace: opts.Namespace}
+	keyParser := &parser.KeyParser{Namespace: r.Namespace}
 	keys, err := keyParser.ParseKeys(r.Keys)
 	if err != nil {
 		return fmt.Errorf("keyParser.ParseKeys: %w", err)
