@@ -2,6 +2,6 @@ package version
 
 const (
 	Major = 0
-	Minor = 0
-	Patch = 6
+	Minor = 1
+	Patch = 0
 )
