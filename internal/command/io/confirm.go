@@ -1,17 +1,38 @@
 package io
 
 import (
-	"github.com/manifoldco/promptui"
+	"fmt"
+	"log"
+	"strings"
+
+	"github.com/mattn/go-tty"
 )
 
 func confirm(message string) bool {
-	prompt := promptui.Select{
-		Label: message + " [Yes/No]",
-		Items: []string{"Yes", "No"},
-	}
-	_, result, err := prompt.Run()
+	t, err := tty.Open()
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		log.Println("WARNING: cannot not confirm unless tty. should specify --force option to execute it.")
+		return false
 	}
-	return result == "Yes"
+	defer t.Close()
+
+	for {
+		_, err := fmt.Fprintf(t.Output(), "%s [y/n]: ", message)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		r, err := t.ReadString()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		switch strings.ToLower(strings.TrimSpace(r)) {
+		case "y", "yes":
+			return true
+		case "n", "no":
+			return false
+		}
+	}
 }
