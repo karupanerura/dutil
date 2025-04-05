@@ -128,6 +128,25 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 
 			value = p.convertKey(key).ToDatastore()
 		}
+		if value == nil {
+			// workaround: IS NULL filter will be rejected
+			switch c.Comparator {
+			case gqlparser.EqualsEitherComparator:
+				return nil, datastore.PropertyFilter{
+					FieldName: c.Property,
+					Operator:  "in",
+					Value:     []any{nil},
+				}, nil
+			case gqlparser.NotEqualsEitherComparator:
+				return nil, datastore.PropertyFilter{
+					FieldName: c.Property,
+					Operator:  "not-in",
+					Value:     []any{nil},
+				}, nil
+			default:
+				return nil, nil, fmt.Errorf("unsupported comparator with NULL: %v", c.Comparator)
+			}
+		}
 		return nil, datastore.PropertyFilter{
 			FieldName: c.Property,
 			Operator:  string(c.Comparator),
