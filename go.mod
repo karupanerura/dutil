@@ -1,6 +1,6 @@
 module github.com/karupanerura/dutil
 
-go 1.22.2
+go 1.24.1
 
 require (
 	github.com/alecthomas/kong v0.8.1
