@@ -242,6 +242,8 @@ Flags:
 
 Commands:
   convert table
+
+  convert key
 ```
 
 #### dutil convert table
@@ -254,6 +256,19 @@ Flags:
       --version          Show version
 
   -f, --from="entity"    Type of JSON structure to convert to table
+```
+
+#### dutil convert key
+
+```
+Usage: dutil convert key
+
+Flags:
+  -h, --help            Show context-sensitive help.
+      --version         Show version
+
+      --from="auto"     Source key format
+      --to="encoded"    Result key format
 ```
 
 ## Format
