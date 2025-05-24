@@ -95,9 +95,16 @@ sub format_version {
 
 my $v = parse_version('./internal/version/number.go');
 my $curr = format_version($v);
-$v->{major}++ if $major;
-$v->{minor}++ if $minor;
-$v->{patch}++ if $patch;
+if ($major) {
+    $v->{major}++;
+    $v->{minor} = 0;
+    $v->{patch} = 0;
+} elsif ($minor) {
+    $v->{minor}++;
+    $v->{patch} = 0;
+} elsif ($patch) {
+    $v->{patch}++;
+}
 my $next = format_version($v);
 print "$curr -> $next", $/;
 die 'aborted' unless confirm('OK?');
