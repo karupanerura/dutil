@@ -38,7 +38,7 @@ func (r *DeleteCommand) Run(ctx context.Context, opts command.GlobalOptions) err
 			log.Println(key.String())
 		}
 	}
-	if !r.Force && !confirm("Delete or insert these entities?") {
+	if !r.Force && !confirm("Delete these entities?") {
 		return fmt.Errorf("aborted")
 	}
 
