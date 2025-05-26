@@ -15,8 +15,9 @@ import (
 )
 
 type KeyCommand struct {
-	From string `name:"from" enum:"json,gql,encoded,auto" default:"auto" help:"Source key format"`
-	To   string `name:"to" enum:"json,gql,encoded" default:"encoded" help:"Result key format"`
+	From      string `name:"from" enum:"json,gql,encoded,auto" default:"auto" help:"Source key format"`
+	To        string `name:"to" enum:"json,gql,encoded" default:"encoded" help:"Result key format"`
+	Namespace string `short:"n" name:"namespace" help:"Override Cloud Datastore namespace" optional:""`
 }
 
 func (r *KeyCommand) Run(ctx context.Context, opts command.GlobalOptions) error {
@@ -28,6 +29,11 @@ func (r *KeyCommand) Run(ctx context.Context, opts command.GlobalOptions) error 
 			return writer.Flush()
 		} else if err != nil {
 			return err
+		}
+
+		// override namespace
+		if r.Namespace != "" {
+			key.Namespace = r.Namespace
 		}
 
 		err = writer.Write(key)
@@ -46,7 +52,7 @@ func newKeyReader(format string, reader io.Reader) keyReader {
 	case "json":
 		return &jsonKeyReader{decoder: json.NewDecoder(reader)}
 	case "gql":
-		return &gqlKeyReader{reader: bufio.NewReader(reader)}
+		return &gqlKeyReader{reader: bufio.NewReader(reader), keyParser: &parser.KeyParser{}}
 	case "encoded":
 		return &encodedKeyReader{reader: bufio.NewReader(reader)}
 	case "auto":
