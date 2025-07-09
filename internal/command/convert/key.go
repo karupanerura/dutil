@@ -15,8 +15,8 @@ import (
 )
 
 type KeyCommand struct {
-	From      string `name:"from" enum:"json,gql,encoded,auto" default:"auto" help:"Source key format"`
-	To        string `name:"to" enum:"json,gql,encoded" default:"encoded" help:"Result key format"`
+	From      string `name:"from" enum:"json,gql,encoded,proto,auto" default:"auto" help:"Source key format"`
+	To        string `name:"to" enum:"json,gql,encoded,proto" default:"encoded" help:"Result key format"`
 	Namespace string `short:"n" name:"namespace" help:"Override Cloud Datastore namespace" optional:""`
 }
 
@@ -55,6 +55,8 @@ func newKeyReader(format string, reader io.Reader) keyReader {
 		return &gqlKeyReader{reader: bufio.NewReader(reader), keyParser: &parser.KeyParser{}}
 	case "encoded":
 		return &encodedKeyReader{reader: bufio.NewReader(reader)}
+	case "proto":
+		return &protoKeyReader{reader: bufio.NewReader(reader)}
 	case "auto":
 		return newKeyReader(detectFormat(reader))
 	default:
@@ -74,6 +76,9 @@ func detectFormat(reader io.Reader) (string, io.Reader) {
 	}
 	if header[3] == '(' {
 		return "gql", io.MultiReader(strings.NewReader(header), reader)
+	}
+	if header[0] == 'p' && header[1] == 'a' && ((header[2] == 'r' && header[3] == 't') || (header[2] == 't' && header[3] == 'h')) {
+		return "proto", io.MultiReader(strings.NewReader(header), reader)
 	}
 	return "encoded", io.MultiReader(strings.NewReader(header), reader)
 }
@@ -112,6 +117,18 @@ func (r *encodedKeyReader) Read() (*datastore.Key, error) {
 	return datastore.DecodeKey(string(line))
 }
 
+type protoKeyReader struct {
+	reader *bufio.Reader
+}
+
+func (r *protoKeyReader) Read() (*datastore.Key, error) {
+	line, _, err := r.reader.ReadLine()
+	if err != nil {
+		return nil, err
+	}
+	return datastore.ParseEncodedProtoKey(string(line))
+}
+
 type keyWriter interface {
 	Write(*datastore.Key) error
 	Flush() error
@@ -125,6 +142,8 @@ func newKeyWriter(format string, writer io.Writer) keyWriter {
 		return &gqlKeyWriter{writer: bufio.NewWriter(writer)}
 	case "encoded":
 		return &encodedKeyWriter{writer: bufio.NewWriter(writer)}
+	case "proto":
+		return &protoKeyWriter{writer: bufio.NewWriter(writer)}
 	default:
 		panic("unknown format: " + format)
 	}
@@ -176,5 +195,21 @@ func (w *encodedKeyWriter) Write(key *datastore.Key) error {
 }
 
 func (w *encodedKeyWriter) Flush() error {
+	return w.writer.Flush()
+}
+
+type protoKeyWriter struct {
+	writer *bufio.Writer
+}
+
+func (w *protoKeyWriter) Write(key *datastore.Key) error {
+	_, err := w.writer.WriteString(key.ToProtoEncoded())
+	if err != nil {
+		return err
+	}
+	return w.writer.WriteByte('\n')
+}
+
+func (w *protoKeyWriter) Flush() error {
 	return w.writer.Flush()
 }

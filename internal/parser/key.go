@@ -30,6 +30,9 @@ func (p *KeyParser) ParseKey(src string) (*datastore.Key, error) {
 	if key, err := datastore.DecodeKey(src); err == nil {
 		return key, nil
 	}
+	if key, err := datastore.ParseEncodedProtoKey(src); err == nil {
+		return key, nil
+	}
 
 	parsedKey, err := gqlparser.ParseKey(gqlparser.NewLexer(src))
 	if err != nil {

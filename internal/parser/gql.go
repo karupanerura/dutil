@@ -36,7 +36,7 @@ func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.Aggre
 		dq = dq.DistinctOn(props...)
 	}
 	if q.Properties != nil {
-		if len(q.Properties) == 0 && q.Properties[0] == "__key__" {
+		if len(q.Properties) == 1 && q.Properties[0] == "__key__" {
 			dq = dq.KeysOnly()
 		} else {
 			props := make([]string, len(q.Properties))

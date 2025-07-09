@@ -14,8 +14,9 @@ import (
 
 type GQLCommand struct {
 	DatastoreOptions
-	Query   string `arg:"" name:"query" help:"GQL Query"`
-	Explain bool   `name:"explain" optional:"" group:"Query" help:"Explain query execution plan"`
+	Query     string `arg:"" name:"query" help:"GQL Query"`
+	Explain   bool   `name:"explain" optional:"" group:"Query" help:"Explain query execution plan"`
+	KeyFormat string `name:"key-format" enum:"json,gql,encoded,proto" default:"json" help:"Key format to output for keys only query"`
 }
 
 func (r *GQLCommand) Run(ctx context.Context, opts command.GlobalOptions) error {
@@ -61,6 +62,7 @@ func (r *GQLCommand) Run(ctx context.Context, opts command.GlobalOptions) error 
 		}
 	}
 
+	keyFormatter := datastore.KeyFormatter{Format: r.KeyFormat}
 	encoder := json.NewEncoder(os.Stdout)
 	for {
 		var entity datastore.Entity
@@ -72,8 +74,14 @@ func (r *GQLCommand) Run(ctx context.Context, opts command.GlobalOptions) error 
 		}
 
 		if len(entity.Properties) == 0 {
-			if err := encoder.Encode(datastore.FromDatastoreKey(key)); err != nil {
-				return err
+			key := keyFormatter.FormatKey(datastore.FromDatastoreKey(key))
+			if s, ok := key.(string); ok {
+				os.Stdout.WriteString(s)
+				os.Stdout.WriteString("\n")
+			} else {
+				if err := encoder.Encode(key); err != nil {
+					return err
+				}
 			}
 		} else {
 			if err := encoder.Encode(entity); err != nil {

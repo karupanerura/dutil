@@ -34,7 +34,7 @@ func (a *FieldAndAlias) UnmarshalText(text []byte) error {
 type QueryCommand struct {
 	DatastoreOptions
 	Kind        string        `arg:"" name:"kind" help:"Entity kind"`
-	KeyFormat   string        `name:"key-format" enum:"json,gql,encoded" default:"json" help:"Key format to output for keys only query"`
+	KeyFormat   string        `name:"key-format" enum:"json,gql,encoded,proto" default:"json" help:"Key format to output for keys only query"`
 	KeysOnly    bool          `name:"keys-only" optional:"" group:"Query" help:"Return only keys of entities"`
 	AncestorKey string        `name:"ancestor" optional:"" group:"Query" help:"Ancestor key to query (format: https://support.google.com/cloud/answer/6361641)"`
 	Distinct    bool          `name:"distinct" optional:"" group:"Query"`
