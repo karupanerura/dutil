@@ -9,7 +9,7 @@ import (
 	"unsafe"
 
 	"cloud.google.com/go/datastore"
-	pb "google.golang.org/genproto/googleapis/datastore/v1"
+	"cloud.google.com/go/datastore/apiv1/datastorepb"
 )
 
 func NewClient(ctx context.Context, opts Options) (*datastore.Client, error) {
@@ -21,7 +21,7 @@ func NewClient(ctx context.Context, opts Options) (*datastore.Client, error) {
 
 type LowLevelClient struct {
 	c          *datastore.Client
-	lc         pb.DatastoreClient
+	lc         datastorepb.DatastoreClient
 	dataset    string
 	databaseID string
 }
@@ -29,7 +29,7 @@ type LowLevelClient struct {
 func NewLowLevelClient(client *datastore.Client) *LowLevelClient {
 	pv := reflect.ValueOf(client)
 	sv := pv.Elem()
-	lc := extractPrivateField[pb.DatastoreClient](sv, "client")
+	lc := extractPrivateField[datastorepb.DatastoreClient](sv, "client")
 	dataset := extractPrivateField[string](sv, "dataset")
 	databaseID := extractPrivateField[string](sv, "databaseID")
 	return &LowLevelClient{c: client, lc: lc, dataset: dataset, databaseID: databaseID}
@@ -42,10 +42,10 @@ func extractPrivateField[T any](sv reflect.Value, fieldName string) T {
 }
 
 func (c *LowLevelClient) GetMetadata(ctx context.Context, key *datastore.Key) (*EntityMetadata, error) {
-	res, err := c.lc.Lookup(ctx, &pb.LookupRequest{
+	res, err := c.lc.Lookup(ctx, &datastorepb.LookupRequest{
 		ProjectId:  c.dataset,
 		DatabaseId: c.databaseID,
-		Keys:       []*pb.Key{c.toLowLevelKey(key)},
+		Keys:       []*datastorepb.Key{c.toLowLevelKey(key)},
 	})
 	if err != nil {
 		return nil, err
@@ -66,15 +66,15 @@ func (c *LowLevelClient) GetMetadata(ctx context.Context, key *datastore.Key) (*
 	}, nil
 }
 
-func (c *LowLevelClient) toLowLevelKey(src *datastore.Key) *pb.Key {
+func (c *LowLevelClient) toLowLevelKey(src *datastore.Key) *datastorepb.Key {
 	k := src
-	var path []*pb.Key_PathElement
+	var path []*datastorepb.Key_PathElement
 	for {
-		el := &pb.Key_PathElement{Kind: k.Kind}
+		el := &datastorepb.Key_PathElement{Kind: k.Kind}
 		if k.ID != 0 {
-			el.IdType = &pb.Key_PathElement_Id{Id: k.ID}
+			el.IdType = &datastorepb.Key_PathElement_Id{Id: k.ID}
 		} else if k.Name != "" {
-			el.IdType = &pb.Key_PathElement_Name{Name: k.Name}
+			el.IdType = &datastorepb.Key_PathElement_Name{Name: k.Name}
 		}
 		path = append(path, el)
 		if k.Parent == nil {
@@ -84,9 +84,9 @@ func (c *LowLevelClient) toLowLevelKey(src *datastore.Key) *pb.Key {
 	}
 	slices.Reverse(path)
 
-	key := &pb.Key{Path: path}
+	key := &datastorepb.Key{Path: path}
 	if src.Namespace != "" {
-		key.PartitionId = &pb.PartitionId{
+		key.PartitionId = &datastorepb.PartitionId{
 			NamespaceId: src.Namespace,
 		}
 	}

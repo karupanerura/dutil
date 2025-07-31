@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"cloud.google.com/go/datastore"
-	proto "google.golang.org/genproto/googleapis/datastore/v1"
+	"cloud.google.com/go/datastore/apiv1/datastorepb"
 )
 
 type Property struct {
@@ -19,7 +19,7 @@ func NewPropertiesByProtoValueMap(m map[string]any) []Property {
 	for name, value := range m {
 		prop := Property{Name: name}
 
-		v, ok := value.(*proto.Value)
+		v, ok := value.(*datastorepb.Value)
 		if !ok {
 			panic(fmt.Sprintf("unexpected value type: %T", value))
 		}
