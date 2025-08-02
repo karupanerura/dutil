@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-
 	"github.com/karupanerura/dutil/internal/command"
 	"github.com/karupanerura/dutil/internal/datastore"
 	"github.com/karupanerura/dutil/internal/parser"
@@ -56,7 +54,7 @@ func (r *LookupCommand) Run(ctx context.Context, opts command.GlobalOptions) err
 		}
 	}
 
-	encoder := json.NewEncoder(os.Stdout)
+	encoder := json.NewEncoder(opts.Stdout)
 	for _, entity := range entities {
 		if err := encoder.Encode(entity); err != nil {
 			return err

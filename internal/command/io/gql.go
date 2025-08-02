@@ -3,9 +3,8 @@ package io
 import (
 	"context"
 	"encoding/json"
-	"os"
-
 	"google.golang.org/api/iterator"
+	"io"
 
 	"github.com/karupanerura/dutil/internal/command"
 	"github.com/karupanerura/dutil/internal/datastore"
@@ -38,7 +37,7 @@ func (r *GQLCommand) Run(ctx context.Context, opts command.GlobalOptions) error 
 		}
 
 		props := datastore.NewPropertiesByProtoValueMap(ar)
-		err = json.NewEncoder(os.Stdout).Encode(props)
+		err = json.NewEncoder(opts.Stdout).Encode(props)
 		if err != nil {
 			return err
 		}
@@ -55,7 +54,7 @@ func (r *GQLCommand) Run(ctx context.Context, opts command.GlobalOptions) error 
 		// read all
 		for {
 			if _, err := iter.Next(nil); err == iterator.Done {
-				return json.NewEncoder(os.Stdout).Encode(iter.ExplainMetrics)
+				return json.NewEncoder(opts.Stdout).Encode(iter.ExplainMetrics)
 			} else if err != nil {
 				return err
 			}
@@ -63,7 +62,7 @@ func (r *GQLCommand) Run(ctx context.Context, opts command.GlobalOptions) error 
 	}
 
 	keyFormatter := datastore.KeyFormatter{Format: r.KeyFormat}
-	encoder := json.NewEncoder(os.Stdout)
+	encoder := json.NewEncoder(opts.Stdout)
 	for {
 		var entity datastore.Entity
 		key, err := iter.Next(&entity)
@@ -76,8 +75,8 @@ func (r *GQLCommand) Run(ctx context.Context, opts command.GlobalOptions) error 
 		if len(entity.Properties) == 0 {
 			key := keyFormatter.FormatKey(datastore.FromDatastoreKey(key))
 			if s, ok := key.(string); ok {
-				os.Stdout.WriteString(s)
-				os.Stdout.WriteString("\n")
+				_, _ = io.WriteString(opts.Stdout, s)
+				_, _ = io.WriteString(opts.Stdout, "\n")
 			} else {
 				if err := encoder.Encode(key); err != nil {
 					return err

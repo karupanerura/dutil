@@ -4,12 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
-	"os"
-
 	"github.com/karupanerura/dutil/internal/command"
 	"github.com/karupanerura/dutil/internal/datastore"
+	"io"
+	"log"
 )
 
 type UpsertCommand struct {
@@ -28,7 +26,7 @@ func (r *UpsertCommand) Run(ctx context.Context, opts command.GlobalOptions) err
 
 	var entities []*datastore.Entity
 	var keys datastore.Keys
-	decoder := json.NewDecoder(os.Stdin)
+	decoder := json.NewDecoder(opts.Stdin)
 	for {
 		var entity *datastore.Entity
 		if err := decoder.Decode(&entity); err == io.EOF {

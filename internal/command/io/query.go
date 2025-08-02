@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	"google.golang.org/api/iterator"
@@ -123,7 +122,7 @@ func (r *QueryCommand) Run(ctx context.Context, opts command.GlobalOptions) erro
 			return err
 		}
 
-		_, err = io.Copy(os.Stdout, io.MultiReader(bytes.NewReader(b), strings.NewReader("\n")))
+		_, err = io.Copy(opts.Stdout, io.MultiReader(bytes.NewReader(b), strings.NewReader("\n")))
 		if err != nil {
 			return err
 		}
@@ -142,14 +141,14 @@ func (r *QueryCommand) Run(ctx context.Context, opts command.GlobalOptions) erro
 		// read all
 		for {
 			if _, err := iter.Next(nil); err == iterator.Done {
-				return json.NewEncoder(os.Stdout).Encode(iter.ExplainMetrics)
+				return json.NewEncoder(opts.Stdout).Encode(iter.ExplainMetrics)
 			} else if err != nil {
 				return err
 			}
 		}
 	}
 
-	encoder := json.NewEncoder(os.Stdout)
+	encoder := json.NewEncoder(opts.Stdout)
 	for {
 		var entity datastore.Entity
 		key, err := iter.Next(&entity)
@@ -162,8 +161,8 @@ func (r *QueryCommand) Run(ctx context.Context, opts command.GlobalOptions) erro
 		if len(entity.Properties) == 0 {
 			key := keyFormatter.FormatKey(datastore.FromDatastoreKey(key))
 			if s, ok := key.(string); ok {
-				os.Stdout.WriteString(s)
-				os.Stdout.WriteString("\n")
+				_, _ = io.WriteString(opts.Stdout, s)
+				_, _ = io.WriteString(opts.Stdout, "\n")
 			} else {
 				if err := encoder.Encode(key); err != nil {
 					return err

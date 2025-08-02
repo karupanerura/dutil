@@ -8,8 +8,17 @@ import (
 	"github.com/mattn/go-tty"
 )
 
+var OverrideTTY string
+
 func confirm(message string) bool {
-	t, err := tty.Open()
+	var t *tty.TTY
+	var err error
+	if OverrideTTY == "" {
+		t, err = tty.Open()
+	} else {
+		t, err = tty.OpenDevice(OverrideTTY)
+	}
+
 	if err != nil {
 		log.Println(err)
 		log.Println("WARNING: cannot not confirm unless tty. should specify --force option to execute it.")

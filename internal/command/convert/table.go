@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"iter"
-	"os"
 	"slices"
 	"strconv"
 	"time"
@@ -34,12 +33,12 @@ func (r *TableCommand) Run(ctx context.Context, opts command.GlobalOptions) erro
 		iterate = explainToTableEntryReader
 	}
 
-	decoder := json.NewDecoder(os.Stdin)
+	decoder := json.NewDecoder(opts.Stdin)
 	for table, err := range buildTables(iterate(decoder)) {
 		if err != nil {
 			return err
 		}
-		fmt.Println(table.Draw())
+		_, _ = fmt.Fprintln(opts.Stdout, table.Draw())
 	}
 	return nil
 }

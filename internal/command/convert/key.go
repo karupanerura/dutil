@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"io"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/karupanerura/dutil/internal/command"
@@ -21,8 +20,8 @@ type KeyCommand struct {
 }
 
 func (r *KeyCommand) Run(ctx context.Context, opts command.GlobalOptions) error {
-	reader := newKeyReader(r.From, os.Stdin)
-	writer := newKeyWriter(r.To, os.Stdout)
+	reader := newKeyReader(r.From, opts.Stdin)
+	writer := newKeyWriter(r.To, opts.Stdout)
 	for {
 		key, err := reader.Read()
 		if err == io.EOF {
