@@ -73,7 +73,7 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 
 	case *gqlparser.ForwardComparatorCondition:
 		if c.Comparator == gqlparser.HasAncestorForwardComparator {
-			if c.Property != "__key__" {
+			if c.Property.String() != "__key__" {
 				panic("HAS ANCESTOR is only valid for __key__")
 			}
 			key, ok := c.Value.(*gqlparser.Key)
@@ -83,14 +83,14 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 			return p.convertKey(key), nil, nil
 		}
 		return nil, datastore.PropertyFilter{
-			FieldName: c.Property,
+			FieldName: c.Property.String(),
 			Operator:  convertForwardComparator(c.Comparator),
 			Value:     c.Value,
 		}, nil
 
 	case *gqlparser.EitherComparatorCondition:
 		if values, isSlice := c.Value.([]any); isSlice {
-			if c.Property == "__key__" {
+			if c.Property.String() == "__key__" {
 				keys := make([]any, len(values))
 				for i, v := range values {
 					key, ok := v.(*gqlparser.Key)
@@ -104,13 +104,13 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 			switch c.Comparator {
 			case gqlparser.EqualsEitherComparator:
 				return nil, datastore.PropertyFilter{
-					FieldName: c.Property,
+					FieldName: c.Property.String(),
 					Operator:  "in",
 					Value:     values,
 				}, nil
 			case gqlparser.NotEqualsEitherComparator:
 				return nil, datastore.PropertyFilter{
-					FieldName: c.Property,
+					FieldName: c.Property.String(),
 					Operator:  "not-in",
 					Value:     values,
 				}, nil
@@ -120,7 +120,7 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 		}
 
 		value := c.Value
-		if c.Property == "__key__" {
+		if c.Property.String() == "__key__" {
 			key, ok := c.Value.(*gqlparser.Key)
 			if !ok {
 				return nil, datastore.PropertyFilter{}, fmt.Errorf("__key__ comparator value must be a key")
@@ -133,13 +133,13 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 			switch c.Comparator {
 			case gqlparser.EqualsEitherComparator:
 				return nil, datastore.PropertyFilter{
-					FieldName: c.Property,
+					FieldName: c.Property.String(),
 					Operator:  "in",
 					Value:     []any{nil},
 				}, nil
 			case gqlparser.NotEqualsEitherComparator:
 				return nil, datastore.PropertyFilter{
-					FieldName: c.Property,
+					FieldName: c.Property.String(),
 					Operator:  "not-in",
 					Value:     []any{nil},
 				}, nil
@@ -148,7 +148,7 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 			}
 		}
 		return nil, datastore.PropertyFilter{
-			FieldName: c.Property,
+			FieldName: c.Property.String(),
 			Operator:  string(c.Comparator),
 			Value:     value,
 		}, nil

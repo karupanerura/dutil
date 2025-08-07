@@ -31,17 +31,17 @@ func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.Aggre
 	if len(q.DistinctOn) != 0 {
 		props := make([]string, len(q.DistinctOn))
 		for i, p := range q.DistinctOn {
-			props[i] = string(p)
+			props[i] = p.String()
 		}
 		dq = dq.DistinctOn(props...)
 	}
 	if q.Properties != nil {
-		if len(q.Properties) == 1 && q.Properties[0] == "__key__" {
+		if len(q.Properties) == 1 && q.Properties[0].String() == "__key__" {
 			dq = dq.KeysOnly()
 		} else {
 			props := make([]string, len(q.Properties))
 			for i, p := range q.Properties {
-				props[i] = string(p)
+				props[i] = p.String()
 			}
 			dq = dq.Project(props...)
 		}
@@ -61,9 +61,9 @@ func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.Aggre
 	}
 	for _, order := range q.OrderBy {
 		if order.Descending {
-			dq = dq.Order("-" + string(order.Property))
+			dq = dq.Order("-" + order.Property.String())
 		} else {
-			dq = dq.Order(string(order.Property))
+			dq = dq.Order(order.Property.String())
 		}
 	}
 	if q.Limit != nil {
@@ -81,9 +81,9 @@ func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.Aggre
 			case *gqlparser.CountUpToAggregation:
 				return nil, nil, fmt.Errorf("COUNT_UP_TO aggregation is not yet supported by cloud.google.com/go/datastore")
 			case *gqlparser.SumAggregation:
-				daq = daq.WithSum(string(agg.Property), agg.Alias)
+				daq = daq.WithSum(agg.Property.String(), agg.Alias)
 			case *gqlparser.AvgAggregation:
-				daq = daq.WithAvg(string(agg.Property), agg.Alias)
+				daq = daq.WithAvg(agg.Property.String(), agg.Alias)
 			default:
 				return nil, nil, fmt.Errorf("unexpected aggregation: %T", agg)
 			}

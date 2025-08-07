@@ -70,10 +70,12 @@ github.com/hexops/gotextdiff v1.0.3 h1:gitA9+qJrrTCsiCl7+kh75nPqQt1cx4ZkudSTLoUq
 github.com/hexops/gotextdiff v1.0.3/go.mod h1:pSWU5MAI3yDq+fZBTazCSJysOMbxWL1BSow5/V2vxeg=
 github.com/k0kubun/pp v3.0.1+incompatible h1:3tqvf7QgUnZ5tXO6pNAZlrvHgl6DvifjDrd9g2S9Z40=
 github.com/k0kubun/pp v3.0.1+incompatible/go.mod h1:GWse8YhT0p8pT4ir3ZgBbfZild3tgzSScAn6HmfYukg=
-github.com/karupanerura/gqlparser v0.0.0-20240414025815-78e42a2f6a5f h1:tz7OXr6IZKF0GktdqWlQoVSnNVk4uqTKCuK4wV396Bk=
-github.com/karupanerura/gqlparser v0.0.0-20240414025815-78e42a2f6a5f/go.mod h1:w1p6XOC/64nhSAIJH/m5WhBz0owewVExYMQPgAH/OL8=
-github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db h1:efQwiMbeaYIISaDyI5C7e40l/uP72Dfmq1j0atIopZw=
-github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db/go.mod h1:86+ByI+VhbOijHwvLgtU3tvWcZH+2i7QdS1ByMFGaZo=
+github.com/karupanerura/gqlparser v0.0.1 h1:V4t28MALVfiPRPn2BsHrct6rewyDwEKb/HmzffPsx9s=
+github.com/karupanerura/gqlparser v0.0.1/go.mod h1:qDg1TqOwe7gq+O7wcDRVuZgRiysl3cAPLycwcnwRItw=
+github.com/karupanerura/gqlparser v0.0.2 h1:PapkQxh9eynZFFIcf/rc4pOuxTq56KK0lEuOUdmTTxw=
+github.com/karupanerura/gqlparser v0.0.2/go.mod h1:qDg1TqOwe7gq+O7wcDRVuZgRiysl3cAPLycwcnwRItw=
+github.com/karupanerura/runetrie v0.0.2 h1:VQZVVTi7lSiFJDGfoeUZYiaBHiodnauULk0ipT2e6Fo=
+github.com/karupanerura/runetrie v0.0.2/go.mod h1:86+ByI+VhbOijHwvLgtU3tvWcZH+2i7QdS1ByMFGaZo=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
 github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovkB8vQcUbaXHg=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=

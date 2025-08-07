@@ -5,14 +5,14 @@ go 1.24.1
 require (
 	github.com/alecthomas/kong v0.8.1
 	github.com/google/go-cmp v0.6.0
-	github.com/karupanerura/gqlparser v0.0.0-20240414025815-78e42a2f6a5f
+	github.com/karupanerura/gqlparser v0.0.2
 	github.com/mattn/go-tty v0.0.7
 )
 
 require (
 	cloud.google.com/go/auth v0.9.9 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
-	github.com/karupanerura/runetrie v0.0.0-20240410000052-ea8ffbef19db // indirect
+	github.com/karupanerura/runetrie v0.0.2 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
