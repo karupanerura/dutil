@@ -30,6 +30,18 @@ $ rm dutil dutil_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
 
 ## Usage
 
+* [dutil io](#dutil-io)
+    * [dutil io lookup](#dutil-io-lookup)
+    * [dutil io query](#dutil-io-query)
+    * [dutil io gql](#dutil-io-gql)
+    * [dutil io insert](#dutil-io-insert)
+    * [dutil io update](#dutil-io-update)
+    * [dutil io upsert](#dutil-io-upsert)
+    * [dutil io delete](#dutil-io-delete)
+* [dutil convert](#dutil-convert)
+    * [dutil convert table](#dutil-convert-table)
+    * [dutil convert key](#dutil-convert-key)
+
 ### dutil io
 
 I/O utilities.
@@ -43,18 +55,12 @@ Flags:
 
 Commands:
   io lookup --projectId=STRING <keys> ...
-
   io query --projectId=STRING <kind>
-
-  io insert --projectId=STRING
-
-  io update --projectId=STRING
-
-  io upsert --projectId=STRING
-
-  io delete --projectId=STRING <keys> ...
-
   io gql --projectId=STRING <query>
+  io insert --projectId=STRING
+  io update --projectId=STRING
+  io upsert --projectId=STRING
+  io delete --projectId=STRING <keys> ...
 ```
 
 #### dutil io lookup
@@ -242,7 +248,6 @@ Flags:
 
 Commands:
   convert table
-
   convert key
 ```
 
