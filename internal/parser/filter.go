@@ -82,10 +82,26 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 			}
 			return p.convertKey(key), nil, nil
 		}
+		value := c.Value
+		if c.Property.String() == "__key__" {
+			values, ok := c.Value.([]any)
+			if !ok {
+				values = []any{c.Value}
+			}
+			keys := make([]any, len(values))
+			for i, v := range values {
+				key, ok := v.(*gqlparser.Key)
+				if !ok {
+					return nil, datastore.PropertyFilter{}, fmt.Errorf("__key__ comparator value must be a key")
+				}
+				keys[i] = p.convertKey(key).ToDatastore()
+			}
+			value = keys
+		}
 		return nil, datastore.PropertyFilter{
 			FieldName: c.Property.String(),
 			Operator:  convertForwardComparator(c.Comparator),
-			Value:     c.Value,
+			Value:     value,
 		}, nil
 
 	case *gqlparser.EitherComparatorCondition:
@@ -169,16 +185,23 @@ func convertForwardComparator(c gqlparser.ForwardComparator) string {
 }
 
 func (p *FilterParser) convertKey(src *gqlparser.Key) *datastore.Key {
-	key := &datastore.Key{Namespace: p.Namespace}
+	namespace := string(src.Namespace)
+	if namespace == "" {
+		namespace = p.Namespace
+	}
+
+	rootKey := &datastore.Key{Namespace: namespace}
+	key := rootKey
 	for i := len(src.Path) - 1; i >= 0; i-- {
 		key.ID = src.Path[i].ID
 		key.Name = src.Path[i].Name
-		key.Namespace = string(src.Namespace)
+		key.Namespace = namespace
 		key.Kind = string(src.Path[i].Kind)
 		if i != 0 {
-			parent := &datastore.Key{Namespace: p.Namespace}
+			parent := &datastore.Key{Namespace: namespace}
 			key.Parent = parent
+			key = parent
 		}
 	}
-	return key
+	return rootKey
 }
