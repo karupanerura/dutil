@@ -333,7 +333,10 @@ type Value = {
     value: string // RFC3339 format
 } | {
     type: "entity"
-    value: []Property
+    value: Property[] | {
+        key: Key
+        properties: Property[]
+    }
 } | {
     type: "float"
     value: number // float64

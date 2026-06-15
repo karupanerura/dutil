@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -12,6 +13,11 @@ import (
 type Value struct {
 	Type  Type `json:"type"`
 	Value any  `json:"value"`
+}
+
+type EmbeddedEntity struct {
+	Key        *Key       `json:"key,omitempty"`
+	Properties []Property `json:"properties"`
 }
 
 func (v *Value) fromDatastoreProtoValue(src *datastorepb.Value) {
@@ -45,7 +51,14 @@ func (v *Value) fromDatastoreValue(src any) {
 		for i, v := range src.Properties {
 			dest[i].fromDatastoreProperty(v)
 		}
-		v.Value = dest
+		if src.Key == nil {
+			v.Value = dest
+		} else {
+			v.Value = EmbeddedEntity{
+				Key:        FromDatastoreKey(src.Key),
+				Properties: dest,
+			}
+		}
 
 	case GeoPointType:
 		src := src.(datastore.GeoPoint)
@@ -71,9 +84,21 @@ func (v *Value) toDatastoreValue() any {
 		return dest
 
 	case EntityType:
-		src := v.Value.([]Property)
-		dest := &datastore.Entity{Properties: make([]datastore.Property, len(src))}
-		for i, v := range src {
+		var key *datastore.Key
+		var properties []Property
+		switch src := v.Value.(type) {
+		case []Property:
+			properties = src
+		case EmbeddedEntity:
+			properties = src.Properties
+			if src.Key != nil {
+				key = src.Key.ToDatastore()
+			}
+		default:
+			panic(fmt.Sprintf("unexpected entity value type: %T", v.Value))
+		}
+		dest := &datastore.Entity{Key: key, Properties: make([]datastore.Property, len(properties))}
+		for i, v := range properties {
 			dest.Properties[i] = v.toDatastoreProperty()
 		}
 		return dest
@@ -127,11 +152,23 @@ func (v *Value) UnmarshalJSON(b []byte) error {
 		}
 		v.Value = value
 	case EntityType:
-		value, err := unmarshalJSON[[]Property](box.Value)
-		if err != nil {
-			return err
+		valueJSON := bytes.TrimSpace(box.Value)
+		switch {
+		case bytes.HasPrefix(valueJSON, []byte("[")):
+			value, err := unmarshalJSON[[]Property](box.Value)
+			if err != nil {
+				return err
+			}
+			v.Value = value
+		case bytes.HasPrefix(valueJSON, []byte("{")):
+			value, err := unmarshalJSON[EmbeddedEntity](box.Value)
+			if err != nil {
+				return err
+			}
+			v.Value = value
+		default:
+			return fmt.Errorf("entity value must be an array or object")
 		}
-		v.Value = value
 	case FloatType:
 		value, err := unmarshalJSON[float64](box.Value)
 		if err != nil {
