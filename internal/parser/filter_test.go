@@ -85,3 +85,32 @@ func TestFilterParserParseFilterKeyLiterals(t *testing.T) {
 		})
 	}
 }
+
+func TestFilterParserParseFilterInvalid(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name   string
+		filter string
+	}{
+		{
+			name:   "HAS ANCESTOR on non-key property",
+			filter: `name HAS ANCESTOR KEY(ParentKind, "parent")`,
+		},
+		{
+			name:   "HAS ANCESTOR with non-key value",
+			filter: `__key__ HAS ANCESTOR "parent"`,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			if _, _, err := (&FilterParser{}).ParseFilter(tt.filter); err == nil {
+				t.Fatalf("ParseFilter(%q) error = nil, want error", tt.filter)
+			}
+		})
+	}
+}

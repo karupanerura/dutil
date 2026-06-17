@@ -74,11 +74,11 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 	case *gqlparser.ForwardComparatorCondition:
 		if c.Comparator == gqlparser.HasAncestorForwardComparator {
 			if c.Property.String() != "__key__" {
-				panic("HAS ANCESTOR is only valid for __key__")
+				return nil, nil, fmt.Errorf("HAS ANCESTOR is only valid for __key__")
 			}
 			key, ok := c.Value.(*gqlparser.Key)
 			if !ok {
-				panic("HAS ANCESTOR value must be a key")
+				return nil, nil, fmt.Errorf("HAS ANCESTOR value must be a key")
 			}
 			return p.convertKey(key), nil, nil
 		}
@@ -98,9 +98,13 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 			}
 			value = keys
 		}
+		operator, err := convertForwardComparator(c.Comparator)
+		if err != nil {
+			return nil, nil, err
+		}
 		return nil, datastore.PropertyFilter{
 			FieldName: c.Property.String(),
-			Operator:  convertForwardComparator(c.Comparator),
+			Operator:  operator,
 			Value:     value,
 		}, nil
 
@@ -169,18 +173,18 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 			Value:     value,
 		}, nil
 	default:
-		panic(fmt.Sprintf("unknown condition: %T", c))
+		return nil, nil, fmt.Errorf("unknown condition: %T", c)
 	}
 }
 
-func convertForwardComparator(c gqlparser.ForwardComparator) string {
+func convertForwardComparator(c gqlparser.ForwardComparator) (string, error) {
 	switch c {
 	case gqlparser.InForwardComparator:
-		return "in"
+		return "in", nil
 	case gqlparser.NotInForwardComparator:
-		return "not-in"
+		return "not-in", nil
 	default:
-		panic(fmt.Sprintf("unknown forward comparator: %s", c))
+		return "", fmt.Errorf("unknown forward comparator: %s", c)
 	}
 }
 
