@@ -1,6 +1,8 @@
 package convert_test
 
 import (
+	"errors"
+	"io"
 	"net/url"
 	"strings"
 	"testing"
@@ -58,6 +60,49 @@ func TestKeyCommand_Run(t *testing.T) {
 
 					assertKeyOutput(t, to, expected, stdout.String())
 				})
+			}
+		})
+	}
+}
+
+func TestKeyCommand_Run_AutoFormatRejectsIncompleteDetectionPrefix(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		input   string
+		wantErr error
+	}{
+		{
+			name:    "empty input",
+			input:   "",
+			wantErr: io.EOF,
+		},
+		{
+			name:    "short input",
+			input:   "abc",
+			wantErr: io.ErrUnexpectedEOF,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			var stdout strings.Builder
+			cmd := &convert.KeyCommand{From: "auto", To: "encoded"}
+			err := cmd.Run(t.Context(), command.GlobalOptions{
+				Stdin:  strings.NewReader(tt.input),
+				Stdout: &stdout,
+			})
+			if !errors.Is(err, tt.wantErr) {
+				t.Fatalf("Run() error = %v, want an error wrapping %v", err, tt.wantErr)
+			}
+			if !strings.Contains(err.Error(), "detect key format") {
+				t.Errorf("Run() error = %q, want a clear format detection error", err)
+			}
+			if stdout.Len() != 0 {
+				t.Errorf("Run() wrote %q, want no output", stdout.String())
 			}
 		})
 	}

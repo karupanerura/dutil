@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
-	"log"
 	"strings"
 
 	"github.com/karupanerura/dutil/internal/command"
@@ -20,7 +20,10 @@ type KeyCommand struct {
 }
 
 func (r *KeyCommand) Run(ctx context.Context, opts command.GlobalOptions) error {
-	reader := newKeyReader(r.From, opts.Stdin)
+	reader, err := newKeyReader(r.From, opts.Stdin)
+	if err != nil {
+		return err
+	}
 	writer := newKeyWriter(r.To, opts.Stdout)
 	for {
 		key, err := reader.Read()
@@ -46,40 +49,44 @@ type keyReader interface {
 	Read() (*datastore.Key, error)
 }
 
-func newKeyReader(format string, reader io.Reader) keyReader {
+func newKeyReader(format string, reader io.Reader) (keyReader, error) {
 	switch format {
 	case "json":
-		return &jsonKeyReader{decoder: json.NewDecoder(reader)}
+		return &jsonKeyReader{decoder: json.NewDecoder(reader)}, nil
 	case "gql":
-		return &gqlKeyReader{reader: bufio.NewReader(reader), keyParser: &parser.KeyParser{}}
+		return &gqlKeyReader{reader: bufio.NewReader(reader), keyParser: &parser.KeyParser{}}, nil
 	case "encoded":
-		return &encodedKeyReader{reader: bufio.NewReader(reader)}
+		return &encodedKeyReader{reader: bufio.NewReader(reader)}, nil
 	case "proto":
-		return &protoKeyReader{reader: bufio.NewReader(reader)}
+		return &protoKeyReader{reader: bufio.NewReader(reader)}, nil
 	case "auto":
-		return newKeyReader(detectFormat(reader))
+		format, reader, err := detectFormat(reader)
+		if err != nil {
+			return nil, fmt.Errorf("detect key format: %w", err)
+		}
+		return newKeyReader(format, reader)
 	default:
 		panic("unknown format:" + format)
 	}
 }
 
-func detectFormat(reader io.Reader) (string, io.Reader) {
+func detectFormat(reader io.Reader) (string, io.Reader, error) {
 	var buffer [4]byte
 	if _, err := io.ReadFull(reader, buffer[:]); err != nil {
-		log.Panicf("Failed to read to detect key format: %+v", err)
+		return "", nil, err
 	}
 
 	header := string(buffer[:])
 	if header[0] == '{' {
-		return "json", io.MultiReader(strings.NewReader(header), reader)
+		return "json", io.MultiReader(strings.NewReader(header), reader), nil
 	}
 	if header[3] == '(' {
-		return "gql", io.MultiReader(strings.NewReader(header), reader)
+		return "gql", io.MultiReader(strings.NewReader(header), reader), nil
 	}
 	if header[0] == 'p' && header[1] == 'a' && ((header[2] == 'r' && header[3] == 't') || (header[2] == 't' && header[3] == 'h')) {
-		return "proto", io.MultiReader(strings.NewReader(header), reader)
+		return "proto", io.MultiReader(strings.NewReader(header), reader), nil
 	}
-	return "encoded", io.MultiReader(strings.NewReader(header), reader)
+	return "encoded", io.MultiReader(strings.NewReader(header), reader), nil
 }
 
 type jsonKeyReader struct {
