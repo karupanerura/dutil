@@ -234,7 +234,18 @@ func appendToTableEntryFromProperty(entry *tableEntry, prefix string, prop datas
 		case []datastore.Property:
 			properties = value
 		case datastore.EmbeddedEntity:
-			properties = value.Properties
+			properties = slices.Clone(value.Properties)
+			if value.Key != nil {
+				// Match the Go Datastore client's synthetic property name for
+				// exposing keys stored on embedded entity values.
+				properties = append(properties, datastore.Property{
+					Name: "__key__",
+					Value: datastore.Value{
+						Type:  datastore.KeyType,
+						Value: value.Key,
+					},
+				})
+			}
 		default:
 			panic(fmt.Sprintf("unexpected entity value type: %T", v.Value))
 		}
