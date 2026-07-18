@@ -158,20 +158,8 @@ func (r *QueryCommand) Run(ctx context.Context, opts command.GlobalOptions) erro
 			return err
 		}
 
-		if len(entity.Properties) == 0 {
-			key := keyFormatter.FormatKey(datastore.FromDatastoreKey(key))
-			if s, ok := key.(string); ok {
-				_, _ = io.WriteString(opts.Stdout, s)
-				_, _ = io.WriteString(opts.Stdout, "\n")
-			} else {
-				if err := encoder.Encode(key); err != nil {
-					return err
-				}
-			}
-		} else {
-			if err := encoder.Encode(entity); err != nil {
-				return err
-			}
+		if err := writeQueryResult(opts.Stdout, encoder, keyFormatter, key, entity, r.KeysOnly); err != nil {
+			return err
 		}
 	}
 	return nil
