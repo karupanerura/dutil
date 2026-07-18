@@ -79,6 +79,21 @@ Flags:
                                 (EXPERIMENTAL)
 ```
 
+Lookup results are written as JSON Lines. The command emits exactly one output
+record for each input key, preserving the input order. If an entity is missing,
+its corresponding record is `null`; missing entities alone do not cause the
+command to fail.
+
+For example:
+
+```prompt
+$ dutil io lookup -p my-project \
+  'KEY(MyKind, "exists")' \
+  'KEY(MyKind, "missing")'
+{"key":{"kind":"MyKind","name":"exists"}}
+null
+```
+
 NOTE: `--with-metadata` is an experimental feature to lookup with datastore internal metadata.
 To simplify implementation, it separates API calls for each key.
 
