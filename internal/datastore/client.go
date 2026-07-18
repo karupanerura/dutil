@@ -14,6 +14,8 @@ import (
 
 func NewClient(ctx context.Context, opts Options) (*datastore.Client, error) {
 	if opts.Emulator != "" {
+		// The Datastore SDK selects emulator mode through this environment
+		// variable. dutil is a CLI, so this process-wide side effect is intentional.
 		os.Setenv("DATASTORE_EMULATOR_HOST", opts.Emulator)
 	}
 	return datastore.NewClientWithDatabase(ctx, opts.ProjectID, opts.DatabaseID)
