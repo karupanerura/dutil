@@ -21,9 +21,9 @@ type FieldAndAlias struct {
 }
 
 func (a *FieldAndAlias) UnmarshalText(text []byte) error {
-	if n := bytes.IndexByte(text, '='); n != -1 {
-		a.Field = string(text[:n])
-		a.Alias = string(text[n+1:])
+	if before, after, ok := bytes.Cut(text, []byte{'='}); ok {
+		a.Field = string(before)
+		a.Alias = string(after)
 	} else {
 		a.Field = string(text)
 	}

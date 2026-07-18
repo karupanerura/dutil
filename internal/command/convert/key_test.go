@@ -17,14 +17,12 @@ func TestKeyCommand_Run(t *testing.T) {
 	t.Parallel()
 
 	for _, from := range []string{"json", "gql", "encoded", "proto"} {
-		from := from
 
 		input := getExpected(from)
 		t.Run("From"+strings.ToUpper(from), func(t *testing.T) {
 			t.Parallel()
 
 			for _, to := range []string{"json", "gql", "encoded", "proto"} {
-				to := to
 
 				t.Run("To"+strings.ToUpper(to), func(t *testing.T) {
 					t.Parallel()
