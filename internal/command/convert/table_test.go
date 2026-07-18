@@ -59,4 +59,40 @@ func TestTableCommand_Run(t *testing.T) {
 			t.Errorf("expected table convert from key: %s", df)
 		}
 	})
+
+	t.Run("FromMissingEntity", func(t *testing.T) {
+		t.Parallel()
+
+		stdin := strings.NewReader("null\n")
+		stdout := strings.Builder{}
+		cmd := &convert.TableCommand{From: "entity"}
+		if err := cmd.Run(t.Context(), command.GlobalOptions{Stdin: stdin, Stdout: &stdout}); err != nil {
+			t.Fatal(err)
+		}
+
+		if df := cmp.Diff("", stdout.String()); df != "" {
+			t.Errorf("expected missing entity to be skipped: %s", df)
+		}
+	})
+
+	t.Run("FromEntityWithKeyedEmbeddedEntity", func(t *testing.T) {
+		t.Parallel()
+
+		stdin := strings.NewReader(`{"key":{"kind":"Foo","name":"foo"},"properties":[{"name":"child","type":"entity","value":{"key":{"kind":"Child","name":"child-key"},"properties":[{"name":"value","type":"string","value":"bar"}]}}]}`)
+		stdout := strings.Builder{}
+		cmd := &convert.TableCommand{From: "entity"}
+		if err := cmd.Run(t.Context(), command.GlobalOptions{Stdin: stdin, Stdout: &stdout}); err != nil {
+			t.Fatal(err)
+		}
+
+		expected := `+------+------+-------------+
+| Kind | Name | child.value |
++------+------+-------------+
+| Foo  | foo  | bar         |
++------+------+-------------+
+`
+		if df := cmp.Diff(expected, stdout.String()); df != "" {
+			t.Errorf("expected table convert from keyed embedded entity: %s", df)
+		}
+	})
 }

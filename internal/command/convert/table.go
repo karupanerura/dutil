@@ -170,6 +170,9 @@ func entityToTableEntryReader(decoder *json.Decoder) iter.Seq2[tableEntry, error
 				yield(tableEntry{}, err)
 				return
 			}
+			if entity == nil {
+				continue
+			}
 
 			var entry tableEntry
 			if entity.Key != nil {
@@ -226,7 +229,16 @@ func appendToTableEntryFromProperty(entry *tableEntry, prefix string, prop datas
 		return
 
 	case datastore.EntityType:
-		appendToTableEntryFromProperties(entry, prop.Name+".", v.Value.([]datastore.Property))
+		var properties []datastore.Property
+		switch value := v.Value.(type) {
+		case []datastore.Property:
+			properties = value
+		case datastore.EmbeddedEntity:
+			properties = value.Properties
+		default:
+			panic(fmt.Sprintf("unexpected entity value type: %T", v.Value))
+		}
+		appendToTableEntryFromProperties(entry, prop.Name+".", properties)
 		return
 
 	case datastore.FloatType:
