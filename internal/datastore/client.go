@@ -26,6 +26,10 @@ type LowLevelClient struct {
 	databaseID string
 }
 
+// NewLowLevelClient extracts the Datastore SDK's private client, dataset, and
+// databaseID fields. Metadata lookup needs those values, which the SDK does not
+// expose through its public API. Keep TestNewLowLevelClientSDKCompatibility in
+// sync with cloud.google.com/go/datastore upgrades.
 func NewLowLevelClient(client *datastore.Client) *LowLevelClient {
 	pv := reflect.ValueOf(client)
 	sv := pv.Elem()
