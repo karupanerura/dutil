@@ -6,7 +6,63 @@ import (
 	"testing"
 
 	clouddatastore "cloud.google.com/go/datastore"
+	"cloud.google.com/go/datastore/apiv1/datastorepb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 )
+
+func TestValueFromDatastoreProtoValueNull(t *testing.T) {
+	t.Parallel()
+
+	src := &datastorepb.Value{
+		ValueType: &datastorepb.Value_NullValue{NullValue: structpb.NullValue_NULL_VALUE},
+	}
+	var v Value
+	v.fromDatastoreProtoValue(src)
+
+	if v.Type != NullType {
+		t.Errorf("Type = %q, want %q", v.Type, NullType)
+	}
+	if v.Value != nil {
+		t.Errorf("Value = %v, want nil", v.Value)
+	}
+
+	got, err := json.Marshal(v)
+	if err != nil {
+		t.Fatalf("failed to marshal value: %v", err)
+	}
+	if want := `{"type":"null","value":null}`; string(got) != want {
+		t.Errorf("JSON = %s, want %s", got, want)
+	}
+
+	tests := []struct {
+		name  string
+		src   *datastorepb.Value
+		type_ Type
+		value any
+	}{
+		{
+			name:  "integer",
+			src:   &datastorepb.Value{ValueType: &datastorepb.Value_IntegerValue{IntegerValue: 42}},
+			type_: IntType,
+			value: int64(42),
+		},
+		{
+			name:  "double",
+			src:   &datastorepb.Value{ValueType: &datastorepb.Value_DoubleValue{DoubleValue: 1.5}},
+			type_: FloatType,
+			value: 1.5,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var v Value
+			v.fromDatastoreProtoValue(tt.src)
+			if v.Type != tt.type_ || v.Value != tt.value {
+				t.Errorf("Value = {%q, %v}, want {%q, %v}", v.Type, v.Value, tt.type_, tt.value)
+			}
+		})
+	}
+}
 
 func TestValueEntityRoundTripPreservesKey(t *testing.T) {
 	t.Parallel()

@@ -29,6 +29,9 @@ func (v *Value) fromDatastoreProtoValue(src *datastorepb.Value) {
 	case *datastorepb.Value_DoubleValue:
 		v.Type = FloatType
 		v.Value = value.DoubleValue
+	case *datastorepb.Value_NullValue:
+		v.Type = NullType
+		v.Value = nil
 	default:
 		panic(fmt.Sprintf("unexpected value type: %T", src.ValueType))
 	}
