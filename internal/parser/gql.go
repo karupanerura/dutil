@@ -11,10 +11,10 @@ type QueryParser struct {
 	Namespace string
 }
 
-func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.AggregationQuery, error) {
+func (p *QueryParser) ParseGQL(query string) (*datastore.Query, bool, *datastore.AggregationQuery, error) {
 	q, aq, err := gqlparser.ParseQueryOrAggregationQuery(gqlparser.NewLexer(query))
 	if err != nil {
-		return nil, nil, fmt.Errorf("gqlparser.ParseQueryOrAggregationQuery: %w", err)
+		return nil, false, nil, fmt.Errorf("gqlparser.ParseQueryOrAggregationQuery: %w", err)
 	}
 
 	if aq != nil {
@@ -35,8 +35,9 @@ func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.Aggre
 		}
 		dq = dq.DistinctOn(props...)
 	}
+	keysOnly := len(q.Properties) == 1 && q.Properties[0].String() == "__key__"
 	if q.Properties != nil {
-		if len(q.Properties) == 1 && q.Properties[0].String() == "__key__" {
+		if keysOnly {
 			dq = dq.KeysOnly()
 		} else {
 			props := make([]string, len(q.Properties))
@@ -50,7 +51,7 @@ func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.Aggre
 		filterParser := &FilterParser{Namespace: p.Namespace}
 		ancestor, filter, err := filterParser.convertCondition(q.Where.Normalize())
 		if err != nil {
-			return nil, nil, fmt.Errorf("filterParser.ParseFilter: %w", err)
+			return nil, false, nil, fmt.Errorf("filterParser.ParseFilter: %w", err)
 		}
 		if ancestor != nil {
 			dq = dq.Ancestor(ancestor.ToDatastore())
@@ -79,16 +80,16 @@ func (p *QueryParser) ParseGQL(query string) (*datastore.Query, *datastore.Aggre
 			case *gqlparser.CountAggregation:
 				daq = daq.WithCount(agg.Alias)
 			case *gqlparser.CountUpToAggregation:
-				return nil, nil, fmt.Errorf("COUNT_UP_TO aggregation is not yet supported by cloud.google.com/go/datastore")
+				return nil, false, nil, fmt.Errorf("COUNT_UP_TO aggregation is not yet supported by cloud.google.com/go/datastore")
 			case *gqlparser.SumAggregation:
 				daq = daq.WithSum(agg.Property.String(), agg.Alias)
 			case *gqlparser.AvgAggregation:
 				daq = daq.WithAvg(agg.Property.String(), agg.Alias)
 			default:
-				return nil, nil, fmt.Errorf("unexpected aggregation: %T", agg)
+				return nil, false, nil, fmt.Errorf("unexpected aggregation: %T", agg)
 			}
 		}
-		return nil, daq, nil
+		return nil, false, daq, nil
 	}
-	return dq, nil, nil
+	return dq, keysOnly, nil, nil
 }

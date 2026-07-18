@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"google.golang.org/api/iterator"
-	"io"
 
 	"github.com/karupanerura/dutil/internal/command"
 	"github.com/karupanerura/dutil/internal/datastore"
@@ -26,7 +25,7 @@ func (r *GQLCommand) Run(ctx context.Context, opts command.GlobalOptions) error 
 	defer client.Close()
 
 	qp := &parser.QueryParser{Namespace: r.Namespace}
-	q, aq, err := qp.ParseGQL(r.Query)
+	q, keysOnly, aq, err := qp.ParseGQL(r.Query)
 	if err != nil {
 		return err
 	}
@@ -72,20 +71,8 @@ func (r *GQLCommand) Run(ctx context.Context, opts command.GlobalOptions) error 
 			return err
 		}
 
-		if len(entity.Properties) == 0 {
-			key := keyFormatter.FormatKey(datastore.FromDatastoreKey(key))
-			if s, ok := key.(string); ok {
-				_, _ = io.WriteString(opts.Stdout, s)
-				_, _ = io.WriteString(opts.Stdout, "\n")
-			} else {
-				if err := encoder.Encode(key); err != nil {
-					return err
-				}
-			}
-		} else {
-			if err := encoder.Encode(entity); err != nil {
-				return err
-			}
+		if err := writeQueryResult(opts.Stdout, encoder, keyFormatter, key, entity, keysOnly); err != nil {
+			return err
 		}
 	}
 	return nil
