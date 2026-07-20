@@ -13,7 +13,7 @@ $ dutil io lookup -p my-project1 'KEY(MyKind, "foo")' | dutil convert table
 $ dutil io gql -p my-project1  'SELECT * FROM MyKind WHERE prop > 2'
 $ dutil io query MyKind -p my-project1 --ancestor 'KEY(MyParentKind, "foo")' > dump.jsonl
 $ dutil io upsert -p my-project2 < dump.jsonl
-$ dutil io query MyKind -p my-project1 --where 'prop > 2' --keys-only --format=encoded | xargs dutil io delete -p my-project1
+$ dutil io query MyKind -p my-project1 --filter 'prop > 2' --keys-only --format=encoded | xargs dutil io delete -p my-project1
 ```
 
 ## Install
