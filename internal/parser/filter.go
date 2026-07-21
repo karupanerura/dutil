@@ -43,9 +43,9 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 			ancestor = rightAncestor
 		}
 
-		return ancestor, datastore.AndFilter{
-			Filters: []datastore.EntityFilter{leftFilter, rightFilter},
-		}, nil
+		return ancestor, combineEntityFilters(leftFilter, rightFilter, func(filters []datastore.EntityFilter) datastore.EntityFilter {
+			return datastore.AndFilter{Filters: filters}
+		}), nil
 
 	case *gqlparser.OrCompoundCondition:
 		leftAncestor, leftFilter, err := p.convertCondition(c.Left)
@@ -58,18 +58,13 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 			return nil, nil, err
 		}
 
-		var ancestor *datastore.Key
-		if leftAncestor != nil && rightAncestor != nil {
-			return nil, nil, fmt.Errorf("multiple ancestor conditions are invalid")
-		} else if leftAncestor != nil {
-			ancestor = leftAncestor
-		} else if rightAncestor != nil {
-			ancestor = rightAncestor
+		if leftAncestor != nil || rightAncestor != nil {
+			return nil, nil, fmt.Errorf("HAS ANCESTOR is not valid within an OR condition")
 		}
 
-		return ancestor, datastore.OrFilter{
-			Filters: []datastore.EntityFilter{leftFilter, rightFilter},
-		}, nil
+		return nil, combineEntityFilters(leftFilter, rightFilter, func(filters []datastore.EntityFilter) datastore.EntityFilter {
+			return datastore.OrFilter{Filters: filters}
+		}), nil
 
 	case *gqlparser.ForwardComparatorCondition:
 		if c.Comparator == gqlparser.HasAncestorForwardComparator {
@@ -174,6 +169,20 @@ func (p *FilterParser) convertCondition(c gqlparser.Condition) (*datastore.Key, 
 		}, nil
 	default:
 		return nil, nil, fmt.Errorf("unknown condition: %T", c)
+	}
+}
+
+// combineEntityFilters merges two possibly-nil EntityFilters. A nil operand
+// means "no filter contributed by that side" (e.g. a bare HAS ANCESTOR
+// condition) and is dropped, regardless of why it is nil.
+func combineEntityFilters(left, right datastore.EntityFilter, wrap func([]datastore.EntityFilter) datastore.EntityFilter) datastore.EntityFilter {
+	switch {
+	case left == nil:
+		return right
+	case right == nil:
+		return left
+	default:
+		return wrap([]datastore.EntityFilter{left, right})
 	}
 }
 

@@ -100,6 +100,14 @@ func TestFilterParserParseFilterInvalid(t *testing.T) {
 			name:   "HAS ANCESTOR with non-key value",
 			filter: `__key__ HAS ANCESTOR "parent"`,
 		},
+		{
+			name:   "multiple ancestor conditions",
+			filter: `__key__ HAS ANCESTOR KEY(A, "a") AND __key__ HAS ANCESTOR KEY(B, "b")`,
+		},
+		{
+			name:   "ancestor condition inside OR",
+			filter: `__key__ HAS ANCESTOR KEY(ParentKind, "parent") OR status = "active"`,
+		},
 	}
 
 	for _, tt := range tests {
@@ -110,5 +118,83 @@ func TestFilterParserParseFilterInvalid(t *testing.T) {
 				t.Fatalf("ParseFilter(%q) error = nil, want error", tt.filter)
 			}
 		})
+	}
+}
+
+func TestFilterParserParseFilterAncestorConjunction(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		filter       string
+		wantAncestor *internaldatastore.Key
+		wantFilter   clouddatastore.EntityFilter
+	}{
+		{
+			name:   "HAS ANCESTOR AND property filter",
+			filter: `__key__ HAS ANCESTOR KEY(ParentKind, "parent") AND status = "active"`,
+			wantAncestor: &internaldatastore.Key{
+				Kind: "ParentKind", Name: "parent",
+			},
+			wantFilter: clouddatastore.PropertyFilter{
+				FieldName: "status", Operator: "=", Value: "active",
+			},
+		},
+		{
+			name:   "property filter AND HAS ANCESTOR",
+			filter: `status = "active" AND __key__ HAS ANCESTOR KEY(ParentKind, "parent")`,
+			wantAncestor: &internaldatastore.Key{
+				Kind: "ParentKind", Name: "parent",
+			},
+			wantFilter: clouddatastore.PropertyFilter{
+				FieldName: "status", Operator: "=", Value: "active",
+			},
+		},
+		{
+			name:   "nested conjunction with one ancestor constraint",
+			filter: `(__key__ HAS ANCESTOR KEY(ParentKind, "parent") AND a = 1) AND b = 2`,
+			wantAncestor: &internaldatastore.Key{
+				Kind: "ParentKind", Name: "parent",
+			},
+			wantFilter: clouddatastore.AndFilter{
+				Filters: []clouddatastore.EntityFilter{
+					clouddatastore.PropertyFilter{FieldName: "a", Operator: "=", Value: int64(1)},
+					clouddatastore.PropertyFilter{FieldName: "b", Operator: "=", Value: int64(2)},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ancestor, filter, err := (&FilterParser{}).ParseFilter(tt.filter)
+			if err != nil {
+				t.Fatalf("ParseFilter() error = %v", err)
+			}
+
+			if diff := cmp.Diff(tt.wantAncestor, ancestor, cmp.AllowUnexported(internaldatastore.Key{})); diff != "" {
+				t.Fatalf("ancestor mismatch (-want +got):\n%s", diff)
+			}
+			if diff := cmp.Diff(tt.wantFilter, filter); diff != "" {
+				t.Fatalf("filter mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestQueryParserParseGQLAncestorConjunction(t *testing.T) {
+	t.Parallel()
+
+	query, _, aggregationQuery, err := (&QueryParser{}).ParseGQL(`
+		SELECT * FROM Child
+		WHERE __key__ HAS ANCESTOR KEY(Parent, "parent") AND status = "active"
+	`)
+	if err != nil {
+		t.Fatalf("ParseGQL() error = %v", err)
+	}
+	if query == nil || aggregationQuery != nil {
+		t.Fatalf("ParseGQL() returned query=%v, aggregationQuery=%v, want a non-aggregation query", query, aggregationQuery)
 	}
 }
