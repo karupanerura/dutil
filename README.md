@@ -18,10 +18,10 @@ $ dutil io query MyKind -p my-project1 --filter 'prop > 2' --keys-only --format=
 
 ## Install
 
-Pre-built binaries are available on: https://github.com/karupanerura/dutil/releases/tag/v0.3.0
+Pre-built binaries are available on: https://github.com/karupanerura/dutil/releases/tag/v0.4.0
 
 ```prompt
-$ VERSION=0.3.0
+$ VERSION=0.4.0
 $ curl -sfLO https://github.com/karupanerura/dutil/releases/download/v${VERSION}/dutil_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
 $ tar zxf dutil_${VERSION}_$(go env GOOS)_$(go env GOARCH).tar.gz
 $ install -m 0755 dutil $PREFIX
